@@ -1,5 +1,5 @@
 {
-  "name": "evm-script-parser",
+  "name": "evm-script-decoder",
   "version": "0.1.0",
   "description": "",
   "main": "lib/index.js",
