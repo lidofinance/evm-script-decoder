@@ -4,6 +4,18 @@ const ETHERSCAN_API_KEY = 'T7E7J4JUY49ZJBGB8QT9I4YHJKUEFTP3ZA'
 
 async function main() {
   const decoder = new EVMScriptDecoder({ etherscanApiKey: ETHERSCAN_API_KEY })
+
+  const evmScriptEncoded = await decoder.encodeEVMScript([
+    {
+      address: '0x07804b6667d649c819dfa94af50c782c26f5abc3',
+      method: 'removeRewardProgram',
+      signature: 'removeRewardProgram(address)',
+      params: ['0x922c10dafffb8b9be4c40d3829c8c708a12827f3'],
+    },
+  ])
+
+  console.log('EVM Script encoded:', evmScriptEncoded)
+
   const evmScript = await decoder.decodeEVMScript(
     '0x0000000107804b6667d649c819dfa94af50c782c26f5abc300000024945233e2000000000000000000000000922c10dafffb8b9be4c40d3829c8c708a12827f3'
   )

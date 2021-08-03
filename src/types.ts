@@ -3,13 +3,19 @@ import nodeFetch from 'node-fetch'
 export type Address = string
 export type EVMScriptEncoded = string
 export type ABIElement = {
-  constant: boolean
-  inputs: any[] // TODO: use better types
+  type: 'function' | 'event' | 'constructor' | 'fallback'
   name: string
-  outputs: any[] // TODO: use better types
+  inputs: ABIElementInputOutput[]
+  outputs: ABIElementInputOutput[]
+  stateMutability: 'pure' | 'view' | 'nonpayable' | 'payable'
   payable: boolean
-  stateMutability: 'view' | 'nonpayable'
-  type: 'function' | 'event'
+  constant: boolean
+}
+
+interface ABIElementInputOutput {
+  name: string
+  type: string
+  components: { name: string; type: string }[]
 }
 
 export interface EVMScriptDecoded {

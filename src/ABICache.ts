@@ -1,15 +1,23 @@
 import keccak256 from 'keccak256'
-import { ABIElement } from './types'
+import { ABIElement, Address } from './types'
 
 export class ABICache {
-  // stores ABI elements by address by methodid
+  // stores ABI elements by address by methodId
   private readonly data: Record<string, Record<string, ABIElement>> = {}
 
-  has(address: string, methodId: string): boolean {
+  hasContractABI(address: string): boolean {
+    return !!this.data[address]
+  }
+
+  hasMethodABI(address: string, methodId: string): boolean {
     return !!(this.data[address] && this.data[address][methodId])
   }
 
-  get(address: string, methodId: string): ABIElement | undefined {
+  getContractABI(contract: Address): ABIElement[] | undefined {
+    return Object.values(this.data[contract])
+  }
+
+  getMethodABI(address: string, methodId: string): ABIElement | undefined {
     return this.data[address] && this.data[address][methodId]
   }
 
@@ -23,7 +31,7 @@ export class ABICache {
   }
 }
 
-function getMethodId(abiElement: ABIElement): string {
+export function getMethodId(abiElement: ABIElement): string {
   const signature = `${abiElement.name}(${abiElement.inputs.map((i) => i.type).join(',')})`
   return '0x' + keccak256(signature).toString('hex').slice(0, 8)
 }
