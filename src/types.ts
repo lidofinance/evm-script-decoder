@@ -8,14 +8,15 @@ export type ABIElement = {
   inputs: ABIElementInputOutput[]
   outputs: ABIElementInputOutput[]
   stateMutability: 'pure' | 'view' | 'nonpayable' | 'payable'
-  payable: boolean
-  constant: boolean
+  payable?: boolean
+  constant?: boolean
 }
 
 interface ABIElementInputOutput {
   name: string
   type: string
-  components: { name: string; type: string }[]
+  internalType: string
+  components?: { name: string; type: string }[]
 }
 
 export interface EVMScriptDecoded {

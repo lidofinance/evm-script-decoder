@@ -5,20 +5,12 @@ export class ABICache {
   // stores ABI elements by address by methodId
   private readonly data: Record<string, Record<string, ABIElement>> = {}
 
-  hasContractABI(address: string): boolean {
+  has(address: string): boolean {
     return !!this.data[address]
   }
 
-  hasMethodABI(address: string, methodId: string): boolean {
-    return !!(this.data[address] && this.data[address][methodId])
-  }
-
-  getContractABI(contract: Address): ABIElement[] | undefined {
-    return Object.values(this.data[contract])
-  }
-
-  getMethodABI(address: string, methodId: string): ABIElement | undefined {
-    return this.data[address] && this.data[address][methodId]
+  get(contract: Address): Record<string, ABIElement> | undefined {
+    return this.data[contract]
   }
 
   add(address: string, abi: ABIElement[]) {
@@ -31,7 +23,7 @@ export class ABICache {
   }
 }
 
-export function getMethodId(abiElement: ABIElement): string {
+function getMethodId(abiElement: ABIElement): string {
   const signature = `${abiElement.name}(${abiElement.inputs.map((i) => i.type).join(',')})`
   return '0x' + keccak256(signature).toString('hex').slice(0, 8)
 }
