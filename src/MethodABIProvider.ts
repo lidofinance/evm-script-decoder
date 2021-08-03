@@ -5,15 +5,26 @@ import { ABIProviderStrategyEtherscan } from './ABIProviderStrategyEtherscan'
 import { ABIProviderStrategyLocal } from './ABIProviderStrategyLocal'
 import { ABIElement, Address } from './types'
 
-type MethodName = { method: string }
-type MethodId = { methodId: string }
-type MethodSignature = { signature: string }
-type MethodInfo = MethodName | MethodId | MethodSignature
-
+interface MethodInfo {
+  address: Address
+  method: string
+}
 interface MethodABIProviderConfig {
   etherscanApiKey?: string
   abi?: Record<Address, ABIElement[]>
   network?: 'mainnet' | 'rinkeby' | 'goerli' | 'kovan'
+}
+
+function typeOfMethodInfo(method: string): 'signature' | 'name' | 'id' {
+  const signatureRegex = /([a-zA-Z0-9]+)\([a-zA-Z0-9,]*\)/gi
+  if (signatureRegex.test(method)) {
+    return 'signature'
+  }
+
+  if (method.length === 10 && method.startsWith('0x')) {
+    return 'id'
+  }
+  return 'name'
 }
 
 export class MethodABIProvider {
@@ -31,18 +42,16 @@ export class MethodABIProvider {
     this.cache = new ABICache()
   }
 
-  async retrieveMethodABI(
-    address: string,
-    methodInfo: MethodInfo
-  ): Promise<ABIElement | undefined> {
+  async retrieveMethodABI({ address, method }: MethodInfo): Promise<ABIElement | undefined> {
     const contractABI = await this.retrieveContractABI(address)
-    if (isMethodId(methodInfo)) {
-      return contractABI[methodInfo.methodId]
-    } else if (isMethodSignature(methodInfo)) {
-      const methodId = '0x' + keccak256(methodInfo.signature).toString('hex').slice(0, 8)
-      return contractABI[methodId]
-    } else if (isMethodName(methodInfo)) {
-      return Object.values(contractABI).find((abi) => abi.name === methodInfo.method)
+    switch (typeOfMethodInfo(method)) {
+      case 'id':
+        return contractABI[method]
+      case 'signature':
+        const methodId = '0x' + keccak256(method).toString('hex').slice(0, 8)
+        return contractABI[methodId]
+      case 'name':
+        return Object.values(contractABI).find((abi) => abi.name === method)
     }
   }
 
@@ -54,16 +63,4 @@ export class MethodABIProvider {
     this.cache.add(address, abi || [])
     return this.cache.get(address)
   }
-}
-
-function isMethodId(methodInfo: MethodInfo): methodInfo is MethodId {
-  return !!(methodInfo as MethodId).methodId
-}
-
-function isMethodName(methodInfo: MethodInfo): methodInfo is MethodName {
-  return !!(methodInfo as MethodName).method
-}
-
-function isMethodSignature(methodInfo: MethodInfo): methodInfo is MethodSignature {
-  return !!(methodInfo as MethodSignature).signature
 }

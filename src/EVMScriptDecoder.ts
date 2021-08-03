@@ -10,20 +10,11 @@ interface EVMScriptDecoderConfig {
   abi?: Record<Address, ABIElement[]>
 }
 
-interface EVMScriptCallInputCommon {
+interface EVMScriptCallInput {
   address: string
   params?: any[]
-}
-
-interface EVMScriptCallInputSignature extends EVMScriptCallInputCommon {
-  signature: string
-}
-
-interface EVMScriptCallInputMethod extends EVMScriptCallInputCommon {
   method: string
 }
-
-type EVMScriptCallInput = EVMScriptCallInputSignature | EVMScriptCallInputMethod
 
 export class EVMScriptDecoder {
   private readonly methodABIProvider: MethodABIProvider
@@ -32,11 +23,68 @@ export class EVMScriptDecoder {
     this.methodABIProvider = new MethodABIProvider({ etherscanApiKey, abi })
   }
 
-  async encodeEVMScript(calls: EVMScriptCallInput[], specId = DEFAULT_SPEC_ID) {
+  async decodeEVMScript(evmScript: EVMScriptEncoded): Promise<EVMScriptDecoded> {
+    const parsedScript: EVMScriptDecoded = EVMScriptParser.parse(evmScript)
+    for (const call of parsedScript.calls) {
+      call.abi = await this.methodABIProvider.retrieveMethodABI({
+        address: call.address,
+        method: call.methodId,
+      })
+      call.decodedCallData = await this.decodeFunctionData(call)
+    }
+    return parsedScript
+  }
+
+  async encodeEVMScript(
+    address: string,
+    method: string,
+    params: any[],
+    specId?: string
+  ): Promise<EVMScriptEncoded>
+  async encodeEVMScript(
+    address: string,
+    calls: { method: string; params: any[] }[],
+    specId?: string
+  ): Promise<EVMScriptEncoded>
+  async encodeEVMScript(calls: EVMScriptCallInput[], specId?: string): Promise<EVMScriptEncoded>
+  async encodeEVMScript(...args: any[]): Promise<EVMScriptEncoded> {
+    if (Array.isArray(args[0])) {
+      return this.encodeEVMScriptDifferentCalls(args[0], args[1])
+    }
+    if (Array.isArray(args[1])) {
+      return this.encodeEVMScriptOneAddressManyCalls(args[0], args[1], args[2])
+    }
+    return this.encodeEVMScriptOneCall(args[0], args[1], args[2], args[3])
+  }
+
+  private async encodeEVMScriptOneCall(
+    address: string,
+    method: string,
+    params: any[],
+    specId = DEFAULT_SPEC_ID
+  ): Promise<EVMScriptEncoded> {
+    return this.encodeEVMScriptDifferentCalls([{ address, method, params }], specId)
+  }
+
+  private async encodeEVMScriptOneAddressManyCalls(
+    address: string,
+    calls: { method: string; params: any[] }[],
+    specId = DEFAULT_SPEC_ID
+  ): Promise<EVMScriptEncoded> {
+    return this.encodeEVMScriptDifferentCalls(
+      calls.map((c) => ({ ...c, address })),
+      specId
+    )
+  }
+
+  private async encodeEVMScriptDifferentCalls(
+    calls: EVMScriptCallInput[],
+    specId = DEFAULT_SPEC_ID
+  ) {
     let evmScript = specId
     for (const evmScriptCallInput of calls) {
       const { address, params } = evmScriptCallInput
-      const methodABI = await this.methodABIProvider.retrieveMethodABI(address, evmScriptCallInput)
+      const methodABI = await this.methodABIProvider.retrieveMethodABI(evmScriptCallInput)
       const encodedCallData = this.encodeFunctionData(methodABI, params).slice(2)
       const callDataLength = Number(encodedCallData.length / 2)
         .toString(16)
@@ -46,25 +94,15 @@ export class EVMScriptDecoder {
     return evmScript
   }
 
-  async decodeEVMScript(evmScript: EVMScriptEncoded): Promise<EVMScriptDecoded> {
-    const parsedScript: EVMScriptDecoded = EVMScriptParser.parse(evmScript)
-    for (const call of parsedScript.calls) {
-      call.abi = await this.methodABIProvider.retrieveMethodABI(call.address, {
-        methodId: call.methodId,
-      })
-      call.decodedCallData = await this.decodeFunctionData(call)
-    }
-    return parsedScript
-  }
-
   private encodeFunctionData(methodABI: ABIElement, params?: any[]): string {
     const i = new Interface(JSON.stringify([methodABI]))
     return i.encodeFunctionData(methodABI.name, params)
   }
 
   private async decodeFunctionData(data: EVMScriptCall): Promise<any[] | undefined> {
-    const abi = await this.methodABIProvider.retrieveMethodABI(data.address, {
-      methodId: data.methodId,
+    const abi = await this.methodABIProvider.retrieveMethodABI({
+      address: data.address,
+      method: data.methodId,
     })
     if (!abi) {
       return undefined
