@@ -12,7 +12,8 @@
   "dependencies": {
     "@ethersproject/abi": "^5.0.7",
     "keccak256": "^1.0.3",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^2.6.1",
+    "ts-mockito": "^2.6.1"
   },
   "devDependencies": {
     "@types/node-fetch": "^2.5.12",

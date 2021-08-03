@@ -10,7 +10,8 @@ export class ABIProvider {
   async getABI(contract: string): Promise<ABIElement[] | undefined> {
     for (const strategy of this.abiProviderStrategies) {
       try {
-        return strategy.getABI(contract)
+        const abi = await strategy.getABI(contract)
+        return abi
       } catch (error) {}
     }
   }
