@@ -1,6 +1,6 @@
 import test from 'ava'
 import { ABIProvider } from '../src/ABIProvider'
-import { ABIElement, ABIProviderStrategy, Address } from '../src/types'
+import { ABIElement, ABIProviderStrategy } from '../src/types'
 import { instance, mock, verify, when } from 'ts-mockito'
 
 const TEST_ADDRESS = '0x07804b6667d649c819dfa94af50c782c26f5abc3'
