@@ -2,14 +2,23 @@ import nodeFetch from 'node-fetch';
 export declare type Address = string;
 export declare type EVMScriptEncoded = string;
 export declare type ABIElement = {
-    constant: boolean;
-    inputs: any[];
+    type: 'function' | 'event' | 'constructor' | 'fallback';
     name: string;
-    outputs: any[];
-    payable: boolean;
-    stateMutability: 'view' | 'nonpayable';
-    type: 'function' | 'event';
+    inputs: ABIElementInputOutput[];
+    outputs: ABIElementInputOutput[];
+    stateMutability: 'pure' | 'view' | 'nonpayable' | 'payable';
+    payable?: boolean;
+    constant?: boolean;
 };
+interface ABIElementInputOutput {
+    name: string;
+    type: string;
+    internalType: string;
+    components?: {
+        name: string;
+        type: string;
+    }[];
+}
 export interface EVMScriptDecoded {
     specId: string;
     calls: EVMScriptCall[];
@@ -30,3 +39,4 @@ export interface ABIProviderStrategy {
 declare global {
     var fetch: typeof nodeFetch;
 }
+export {};
