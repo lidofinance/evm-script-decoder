@@ -13,7 +13,7 @@ export declare type ABIElement = {
 interface ABIElementInputOutput {
     name: string;
     type: string;
-    internalType: string;
+    internalType?: string;
     components?: {
         name: string;
         type: string;
