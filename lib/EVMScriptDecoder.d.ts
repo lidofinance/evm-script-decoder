@@ -1,8 +1,5 @@
-import { ABIElement, Address, EVMScriptDecoded, EVMScriptEncoded } from './types';
-interface EVMScriptDecoderConfig {
-    etherscanApiKey?: string;
-    abi?: Record<Address, ABIElement[]>;
-}
+import { EVMScriptDecoded, EVMScriptEncoded } from './types';
+import { MethodABIProviderConfig } from './MethodABIProvider';
 interface EVMScriptCallInput {
     address: string;
     params?: any[];
@@ -10,7 +7,7 @@ interface EVMScriptCallInput {
 }
 export declare class EVMScriptDecoder {
     private readonly methodABIProvider;
-    constructor({ etherscanApiKey, abi }?: EVMScriptDecoderConfig);
+    constructor(config?: MethodABIProviderConfig);
     decodeEVMScript(evmScript: EVMScriptEncoded): Promise<EVMScriptDecoded>;
     encodeEVMScript(address: string, method: string, params: any[], specId?: string): Promise<EVMScriptEncoded>;
     encodeEVMScript(address: string, calls: {

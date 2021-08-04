@@ -1,12 +1,14 @@
 import nodeFetch from 'node-fetch';
+export declare type Network = 'mainnet' | 'ropsten' | 'rinkeby' | 'kovan' | 'goerli';
 export declare type Address = string;
 export declare type EVMScriptEncoded = string;
 export declare type ABIElement = {
+    anonymous?: boolean;
     type: 'function' | 'event' | 'constructor' | 'fallback';
     name: string;
-    inputs: ABIElementInputOutput[];
-    outputs: ABIElementInputOutput[];
-    stateMutability: 'pure' | 'view' | 'nonpayable' | 'payable';
+    inputs?: ABIElementInputOutput[];
+    outputs?: ABIElementInputOutput[];
+    stateMutability?: 'pure' | 'view' | 'nonpayable' | 'payable';
     payable?: boolean;
     constant?: boolean;
 };
@@ -14,6 +16,7 @@ interface ABIElementInputOutput {
     name: string;
     type: string;
     internalType?: string;
+    indexed?: boolean;
     components?: {
         name: string;
         type: string;

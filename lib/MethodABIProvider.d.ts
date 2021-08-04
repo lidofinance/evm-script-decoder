@@ -1,17 +1,17 @@
-import { ABIElement, Address } from './types';
+import { ABIElement, Address, Network } from './types';
 interface MethodInfo {
     address: Address;
     method: string;
 }
-interface MethodABIProviderConfig {
+export interface MethodABIProviderConfig {
     etherscanApiKey?: string;
+    network?: Network;
     abi?: Record<Address, ABIElement[]>;
-    network?: 'mainnet' | 'rinkeby' | 'goerli' | 'kovan';
 }
 export declare class MethodABIProvider {
     private readonly cache;
     private readonly abiProvider;
-    constructor({ abi, etherscanApiKey }: MethodABIProviderConfig);
+    constructor({ abi, etherscanApiKey, network }: MethodABIProviderConfig);
     retrieveMethodABI({ address, method }: MethodInfo): Promise<ABIElement | undefined>;
     private retrieveContractABI;
 }
