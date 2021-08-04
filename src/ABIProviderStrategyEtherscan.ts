@@ -1,10 +1,13 @@
 import { URLSearchParams } from 'url'
-import { ABIElement, ABIProviderStrategy } from './types'
+import { ABIElement, ABIProviderStrategy, Network } from './types'
 
 export class ABIProviderStrategyEtherscan implements ABIProviderStrategy {
   public readonly etherscanApiKey: string
-  constructor(etherscanApiKey: string) {
+  public readonly network: Network
+
+  constructor(network: Network, etherscanApiKey: string) {
     this.etherscanApiKey = etherscanApiKey
+    this.network = network
   }
   async getABI(contract: string): Promise<ABIElement[]> {
     const queryParams = new URLSearchParams({
@@ -12,9 +15,8 @@ export class ABIProviderStrategyEtherscan implements ABIProviderStrategy {
       action: 'getabi',
       address: contract,
       apikey: this.etherscanApiKey,
-    }).toString()
-    const getAbiUrl = `https://api-rinkeby.etherscan.io/api?${queryParams}`
-    const response = await fetch(getAbiUrl)
+    })
+    const response = await fetch(`${this.baseEtherscanApiUrl}?${queryParams.toString()}`)
     if (response.status !== 200) {
       throw Error(`Etherscan request failed. Status code ${response.status}`)
     }
@@ -23,5 +25,12 @@ export class ABIProviderStrategyEtherscan implements ABIProviderStrategy {
       throw new Error(data.result)
     }
     return JSON.parse(data.result)
+  }
+
+  private get baseEtherscanApiUrl() {
+    if (this.network === 'mainnet') {
+      return `https://api.etherscan.io/api`
+    }
+    return `https://api-${this.network}.etherscan.io/api`
   }
 }

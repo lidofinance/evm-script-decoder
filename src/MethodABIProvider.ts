@@ -3,41 +3,31 @@ import { ABICache } from './ABICache'
 import { ABIProvider } from './ABIProvider'
 import { ABIProviderStrategyEtherscan } from './ABIProviderStrategyEtherscan'
 import { ABIProviderStrategyLocal } from './ABIProviderStrategyLocal'
-import { ABIElement, Address } from './types'
+import { ABIElement, Address, Network } from './types'
 
 interface MethodInfo {
   address: Address
   method: string
 }
-interface MethodABIProviderConfig {
+export interface MethodABIProviderConfig {
   etherscanApiKey?: string
+  network?: Network
   abi?: Record<Address, ABIElement[]>
-  network?: 'mainnet' | 'rinkeby' | 'goerli' | 'kovan'
-}
-
-function typeOfMethodInfo(method: string): 'signature' | 'name' | 'id' {
-  const signatureRegex = /([a-zA-Z0-9]+)\([a-zA-Z0-9,]*\)/gi
-  if (signatureRegex.test(method)) {
-    return 'signature'
-  }
-
-  if (method.length === 10 && method.startsWith('0x')) {
-    return 'id'
-  }
-  return 'name'
 }
 
 export class MethodABIProvider {
   private readonly cache: ABICache
   private readonly abiProvider: ABIProvider
 
-  constructor({ abi, etherscanApiKey }: MethodABIProviderConfig) {
+  constructor({ abi, etherscanApiKey, network }: MethodABIProviderConfig) {
     this.abiProvider = new ABIProvider()
     if (abi) {
       this.abiProvider.addStrategy(new ABIProviderStrategyLocal(abi))
     }
     if (etherscanApiKey) {
-      this.abiProvider.addStrategy(new ABIProviderStrategyEtherscan(etherscanApiKey))
+      this.abiProvider.addStrategy(
+        new ABIProviderStrategyEtherscan(network || 'mainnet', etherscanApiKey)
+      )
     }
     this.cache = new ABICache()
   }
@@ -56,11 +46,24 @@ export class MethodABIProvider {
   }
 
   private async retrieveContractABI(address: Address) {
-    if (this.cache.has(address)) {
-      return this.cache.get(address)
+    const normalizedAddress = address.toLowerCase()
+    if (this.cache.has(normalizedAddress)) {
+      return this.cache.get(normalizedAddress)
     }
-    let abi = await this.abiProvider.getABI(address)
-    this.cache.add(address, abi || [])
-    return this.cache.get(address)
+    let abi = await this.abiProvider.getABI(normalizedAddress)
+    this.cache.add(normalizedAddress, abi || [])
+    return this.cache.get(normalizedAddress)
   }
+}
+
+function typeOfMethodInfo(method: string): 'signature' | 'name' | 'id' {
+  const signatureRegex = /([a-zA-Z0-9]+)\([a-zA-Z0-9,]*\)/gi
+  if (signatureRegex.test(method)) {
+    return 'signature'
+  }
+
+  if (method.length === 10 && method.startsWith('0x')) {
+    return 'id'
+  }
+  return 'name'
 }

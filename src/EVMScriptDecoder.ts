@@ -1,14 +1,9 @@
 import { Interface } from '@ethersproject/abi'
 import { EVMScriptParser } from './EVMScriptParser'
-import { ABIElement, Address, EVMScriptCall, EVMScriptDecoded, EVMScriptEncoded } from './types'
-import { MethodABIProvider } from './MethodABIProvider'
+import { ABIElement, EVMScriptCall, EVMScriptDecoded, EVMScriptEncoded } from './types'
+import { MethodABIProvider, MethodABIProviderConfig } from './MethodABIProvider'
 
 const DEFAULT_SPEC_ID = '0x00000001'
-
-interface EVMScriptDecoderConfig {
-  etherscanApiKey?: string
-  abi?: Record<Address, ABIElement[]>
-}
 
 interface EVMScriptCallInput {
   address: string
@@ -19,8 +14,8 @@ interface EVMScriptCallInput {
 export class EVMScriptDecoder {
   private readonly methodABIProvider: MethodABIProvider
 
-  constructor({ etherscanApiKey, abi }: EVMScriptDecoderConfig = {}) {
-    this.methodABIProvider = new MethodABIProvider({ etherscanApiKey, abi })
+  constructor(config: MethodABIProviderConfig = {}) {
+    this.methodABIProvider = new MethodABIProvider(config)
   }
 
   async decodeEVMScript(evmScript: EVMScriptEncoded): Promise<EVMScriptDecoded> {
@@ -85,6 +80,11 @@ export class EVMScriptDecoder {
     for (const evmScriptCallInput of calls) {
       const { address, params } = evmScriptCallInput
       const methodABI = await this.methodABIProvider.retrieveMethodABI(evmScriptCallInput)
+      if (!methodABI) {
+        throw new Error(
+          `ABI for method ${evmScriptCallInput.method} not found on address ${address}`
+        )
+      }
       const encodedCallData = this.encodeFunctionData(methodABI, params).slice(2)
       const callDataLength = Number(encodedCallData.length / 2)
         .toString(16)
@@ -110,6 +110,6 @@ export class EVMScriptDecoder {
     const i = new Interface(JSON.stringify([abi]))
     return Array.from(
       i.decodeFunctionData(abi.name, data.methodId + data.encodedCallData.substring(2))
-    )
+    ).map((param) => (param?._isBigNumber ? param.toString() : param))
   }
 }

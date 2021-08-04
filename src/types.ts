@@ -1,13 +1,15 @@
 import nodeFetch from 'node-fetch'
 
+export type Network = 'mainnet' | 'ropsten' | 'rinkeby' | 'kovan' | 'goerli'
 export type Address = string
 export type EVMScriptEncoded = string
 export type ABIElement = {
+  anonymous?: boolean
   type: 'function' | 'event' | 'constructor' | 'fallback'
   name: string
-  inputs: ABIElementInputOutput[]
-  outputs: ABIElementInputOutput[]
-  stateMutability: 'pure' | 'view' | 'nonpayable' | 'payable'
+  inputs?: ABIElementInputOutput[]
+  outputs?: ABIElementInputOutput[]
+  stateMutability?: 'pure' | 'view' | 'nonpayable' | 'payable'
   payable?: boolean
   constant?: boolean
 }
@@ -16,6 +18,7 @@ interface ABIElementInputOutput {
   name: string
   type: string
   internalType?: string
+  indexed?: boolean
   components?: { name: string; type: string }[]
 }
 
