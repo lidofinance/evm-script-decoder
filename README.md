@@ -6,9 +6,9 @@ Repository provides functionality to encode/decode Aragon's EVMScripts.
 
 Library provides two main classes to work with Aragon's EVMScripts:
 
-- [EVMScriptParser.parse()]()
-- [EVMScriptDecoder.decodeEVMScript()]()
-- [EVMScriptDecoder.encodeEVMScript()]()
+- [EVMScriptParser.parse()](#evmscriptparserparse)
+- [EVMScriptDecoder.decodeEVMScript()](#evmscriptdecoderdecodeevmscript)
+- [EVMScriptDecoder.encodeEVMScript()](#evmscriptdecoderencodeevmscript)
 
 ### EVMScriptParser.parse()
 
