@@ -1,15 +1,13 @@
-import nodeFetch from 'node-fetch'
-
 export type Network = 'mainnet' | 'ropsten' | 'rinkeby' | 'kovan' | 'goerli'
 export type Address = string
 export type EVMScriptEncoded = string
 export type ABIElement = {
   anonymous?: boolean
-  type: 'function' | 'event' | 'constructor' | 'fallback'
+  type: string
   name: string
   inputs?: ABIElementInputOutput[]
   outputs?: ABIElementInputOutput[]
-  stateMutability?: 'pure' | 'view' | 'nonpayable' | 'payable'
+  stateMutability?: string
   payable?: boolean
   constant?: boolean
 }
@@ -39,10 +37,14 @@ export interface EVMScriptCall extends EVMScriptParsed {
   abi?: ABIElement
 }
 
-export interface ABIProviderStrategy {
+export interface ABIProvider {
   getABI(contract: Address): Promise<ABIElement[]>
 }
 
+export interface Fetcher {
+  (address: string): Promise<{ status: number; json(): Promise<any> }>
+}
+
 declare global {
-  var fetch: typeof nodeFetch
+  var fetch: Fetcher
 }

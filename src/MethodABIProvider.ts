@@ -1,34 +1,18 @@
 import keccak256 from 'keccak256'
 import { ABICache } from './ABICache'
-import { ABIProvider } from './ABIProvider'
-import { ABIProviderStrategyEtherscan } from './ABIProviderStrategyEtherscan'
-import { ABIProviderStrategyLocal } from './ABIProviderStrategyLocal'
-import { ABIElement, Address, Network } from './types'
+import { ABIElement, ABIProvider, Address } from './types'
 
 interface MethodInfo {
   address: Address
   method: string
 }
-export interface MethodABIProviderConfig {
-  etherscanApiKey?: string
-  network?: Network
-  abi?: Record<Address, ABIElement[]>
-}
 
 export class MethodABIProvider {
   private readonly cache: ABICache
-  private readonly abiProvider: ABIProvider
+  private readonly abiProviders: ABIProvider[]
 
-  constructor({ abi, etherscanApiKey, network }: MethodABIProviderConfig) {
-    this.abiProvider = new ABIProvider()
-    if (abi) {
-      this.abiProvider.addStrategy(new ABIProviderStrategyLocal(abi))
-    }
-    if (etherscanApiKey) {
-      this.abiProvider.addStrategy(
-        new ABIProviderStrategyEtherscan(network || 'mainnet', etherscanApiKey)
-      )
-    }
+  constructor(providers: ABIProvider[]) {
+    this.abiProviders = providers
     this.cache = new ABICache()
   }
 
@@ -50,9 +34,18 @@ export class MethodABIProvider {
     if (this.cache.has(normalizedAddress)) {
       return this.cache.get(normalizedAddress)
     }
-    let abi = await this.abiProvider.getABI(normalizedAddress)
+    let abi = await this.getContractABI(normalizedAddress)
     this.cache.add(normalizedAddress, abi || [])
     return this.cache.get(normalizedAddress)
+  }
+
+  private async getContractABI(contract: Address) {
+    for (const provider of this.abiProviders) {
+      try {
+        const abi = await provider.getABI(contract)
+        return abi
+      } catch (error) {}
+    }
   }
 }
 

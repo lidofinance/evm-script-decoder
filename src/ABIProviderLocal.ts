@@ -1,9 +1,9 @@
-import { ABIElement, ABIProviderStrategy } from './types'
+import { ABIElement, ABIProvider } from './types'
 
-export class ABIProviderStrategyLocal implements ABIProviderStrategy {
+export class ABIProviderLocal implements ABIProvider {
   private readonly abis: Record<string, ABIElement[]> = {}
-  constructor(abis: Record<string, ABIElement[]>) {
-    for (const [address, abi] of Object.entries(abis)) {
+  constructor(abiByAddress: Record<string, ABIElement[]>) {
+    for (const [address, abi] of Object.entries(abiByAddress)) {
       this.abis[address.toLowerCase()] = abi
     }
   }

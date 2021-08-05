@@ -1,5 +1,4 @@
-import { EVMScriptDecoded, EVMScriptEncoded } from './types';
-import { MethodABIProviderConfig } from './MethodABIProvider';
+import { ABIProvider, EVMScriptDecoded, EVMScriptEncoded } from './types';
 interface EVMScriptCallInput {
     address: string;
     params?: any[];
@@ -7,7 +6,7 @@ interface EVMScriptCallInput {
 }
 export declare class EVMScriptDecoder {
     private readonly methodABIProvider;
-    constructor(config?: MethodABIProviderConfig);
+    constructor(providers?: ABIProvider[]);
     decodeEVMScript(evmScript: EVMScriptEncoded): Promise<EVMScriptDecoded>;
     encodeEVMScript(address: string, method: string, params: any[], specId?: string): Promise<EVMScriptEncoded>;
     encodeEVMScript(address: string, calls: {

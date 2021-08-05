@@ -1,28 +1,29 @@
-import { EVMScriptDecoder } from '.'
+import { EVMScriptDecoder, providers } from './index'
+import fetch from 'node-fetch'
 
 const ETHERSCAN_API_KEY = 'T7E7J4JUY49ZJBGB8QT9I4YHJKUEFTP3ZA'
+const CONTRACT_ABI = [
+  {
+    constant: false,
+    inputs: [
+      { name: '_id', type: 'uint256' },
+      { name: '_stakingLimit', type: 'uint64' },
+    ],
+    name: 'setNodeOperatorStakingLimit',
+    outputs: [],
+    payable: false,
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+]
 
 async function main() {
-  const decoder = new EVMScriptDecoder({
-    network: 'rinkeby',
-    etherscanApiKey: ETHERSCAN_API_KEY,
-    abi: {
-      '0x7899EF901Ed9B331bAf7759c15D2e8728e8c2a2C': [
-        {
-          constant: false,
-          inputs: [
-            { name: '_id', type: 'uint256' },
-            { name: '_stakingLimit', type: 'uint64' },
-          ],
-          name: 'setNodeOperatorStakingLimit',
-          outputs: [],
-          payable: false,
-          stateMutability: 'nonpayable',
-          type: 'function',
-        },
-      ],
-    },
-  })
+  const decoder = new EVMScriptDecoder([
+    new providers.Local({
+      '0x7899EF901Ed9B331bAf7759c15D2e8728e8c2a2C': CONTRACT_ABI,
+    }),
+    new providers.Etherscan('rinkeby', ETHERSCAN_API_KEY, fetch),
+  ])
 
   const evmScriptEncodedManyCalls = await decoder.encodeEVMScript([
     {

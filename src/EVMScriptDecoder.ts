@@ -1,7 +1,7 @@
 import { Interface } from '@ethersproject/abi'
 import { EVMScriptParser } from './EVMScriptParser'
-import { ABIElement, EVMScriptCall, EVMScriptDecoded, EVMScriptEncoded } from './types'
-import { MethodABIProvider, MethodABIProviderConfig } from './MethodABIProvider'
+import { ABIElement, ABIProvider, EVMScriptCall, EVMScriptDecoded, EVMScriptEncoded } from './types'
+import { MethodABIProvider } from './MethodABIProvider'
 
 const DEFAULT_SPEC_ID = '0x00000001'
 
@@ -14,8 +14,8 @@ interface EVMScriptCallInput {
 export class EVMScriptDecoder {
   private readonly methodABIProvider: MethodABIProvider
 
-  constructor(config: MethodABIProviderConfig = {}) {
-    this.methodABIProvider = new MethodABIProvider(config)
+  constructor(providers: ABIProvider[] = []) {
+    this.methodABIProvider = new MethodABIProvider(providers)
   }
 
   async decodeEVMScript(evmScript: EVMScriptEncoded): Promise<EVMScriptDecoded> {
