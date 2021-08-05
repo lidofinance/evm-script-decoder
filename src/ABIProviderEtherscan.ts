@@ -1,4 +1,3 @@
-import { URLSearchParams } from 'url'
 import { ABIElement, ABIProvider, Network, Fetcher } from './types'
 
 export class ABIProviderEtherscan implements ABIProvider {
@@ -12,13 +11,13 @@ export class ABIProviderEtherscan implements ABIProvider {
     this.fetch = fetcher
   }
   async getABI(contract: string): Promise<ABIElement[]> {
-    const queryParams = new URLSearchParams({
-      module: 'contract',
-      action: 'getabi',
-      address: contract,
-      apikey: this.etherscanApiKey,
-    })
-    const response = await this.fetch(`${this.baseEtherscanApiUrl}?${queryParams.toString()}`)
+    const queryParams = [
+      'module=contract',
+      'action=getabi',
+      `address=${contract}`,
+      `apikey=${this.etherscanApiKey}`,
+    ].join('&')
+    const response = await this.fetch(`${this.baseEtherscanApiUrl}?${queryParams}`)
     if (response.status !== 200) {
       throw Error(`Etherscan request failed. Status code ${response.status}`)
     }
