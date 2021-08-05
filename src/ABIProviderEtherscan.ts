@@ -5,7 +5,11 @@ export class ABIProviderEtherscan implements ABIProvider {
   public readonly network: Network
   private readonly fetch?: Fetcher
 
-  constructor(network: Network, etherscanApiKey: string, fetcher: Fetcher = fetch) {
+  constructor(
+    network: Network,
+    etherscanApiKey: string,
+    fetcher: Fetcher = globalThis.fetch.bind(globalThis)
+  ) {
     this.etherscanApiKey = etherscanApiKey
     this.network = network
     this.fetch = fetcher
