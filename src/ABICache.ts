@@ -15,7 +15,8 @@ export class ABICache {
 
   add(address: string, abi: ABIElement[]) {
     const abiByMethodIds: Record<string, ABIElement> = {}
-    for (const abiElement of abi) {
+    const onlyMethodsABI = abi.filter((a) => a.name && a.inputs)
+    for (const abiElement of onlyMethodsABI) {
       const methodId = getMethodId(abiElement)
       abiByMethodIds[methodId] = abiElement
     }
