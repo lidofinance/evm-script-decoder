@@ -1,11 +1,6 @@
 import keccak256 from 'keccak256'
 import { ABICache } from './ABICache'
-import { ABIElement, ABIProvider, Address } from './types'
-
-interface MethodInfo {
-  address: Address
-  method: string
-}
+import { ABIElement, ABIProvider, Address, MethodInfo } from './types'
 
 export class MethodABIProvider {
   private readonly cache: ABICache
@@ -16,17 +11,20 @@ export class MethodABIProvider {
     this.cache = new ABICache()
   }
 
-  async retrieveMethodABI({ address, method }: MethodInfo): Promise<ABIElement | undefined> {
+  async retrieveMethodABI(
+    address: Address,
+    { methodId, signature, methodName }: MethodInfo
+  ): Promise<ABIElement | undefined> {
     const contractABI = await this.retrieveContractABI(address)
-    switch (typeOfMethodInfo(method)) {
-      case 'id':
-        return contractABI[method]
-      case 'signature':
-        const methodId = '0x' + keccak256(method).toString('hex').slice(0, 8)
-        return contractABI[methodId]
-      case 'name':
-        return Object.values(contractABI).find((abi) => abi.name === method)
+    if (methodId) {
+      return contractABI[methodId]
+    } else if (signature) {
+      const methodId = '0x' + keccak256(signature).toString('hex').slice(0, 8)
+      return contractABI[methodId]
+    } else if (methodName) {
+      return Object.values(contractABI).find((abi) => abi.name === methodName)
     }
+    throw new Error('Invalid MethodInfo')
   }
 
   private async retrieveContractABI(address: Address) {
@@ -47,16 +45,4 @@ export class MethodABIProvider {
       } catch (error) {}
     }
   }
-}
-
-function typeOfMethodInfo(method: string): 'signature' | 'name' | 'id' {
-  const signatureRegex = /([a-zA-Z0-9]+)\([a-zA-Z0-9,]*\)/gi
-  if (signatureRegex.test(method)) {
-    return 'signature'
-  }
-
-  if (method.length === 10 && method.startsWith('0x')) {
-    return 'id'
-  }
-  return 'name'
 }

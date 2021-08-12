@@ -48,3 +48,20 @@ export interface Fetcher {
 declare global {
   var fetch: Fetcher
 }
+
+export interface MethodInfo {
+  methodId?: string
+  signature?: string
+  methodName?: string
+}
+
+interface Addressable {
+  address?: Address
+}
+
+export type EVMScriptCallToEncode = Partial<EVMScriptCall> & MethodInfo
+
+export interface EVMScriptToEncode extends Addressable {
+  specId?: string
+  calls: EVMScriptCallToEncode[]
+}
