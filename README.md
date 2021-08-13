@@ -1,10 +1,10 @@
 # EVMScript Decoder
 
-Repository provides functionality to encode/decode Aragon's EVMScripts.
+Library provides functionality to encode/decode Aragon's EVMScripts.
 
 ## Usage
 
-Library provides two main classes to work with Aragon's EVMScripts:
+Library provides three primary methods to work with Aragon's EVMScripts:
 
 - [EVMScriptParser.parse()](#evmscriptparserparse)
 - [EVMScriptDecoder.decodeEVMScript()](#evmscriptdecoderdecodeevmscript)
@@ -59,12 +59,12 @@ import { EVMScriptDecoder, providers } from 'evm-script-decoder'
 const ETHERSCAN_API_KEY = 'T7E7J4JUY49ZJBGB8QT9I4YHJKUEFTP3ZA'
 
 // Note: Etherscan provider expects that fetch declared in
-// globalThis scope, what is true in browser but not in node.js
-// To use Etherscan provider in node.js you can use pollyfill for fetch
+// globalThis scope, what is true for browsers but not for node.js.
+// To use Etherscan provider in node.js you can use polyfill for fetch
 // (node-fetch for example) and add it to globalThis object, or pass
 // as last param to Etherscan constructor.
 const etherscanEVMScriptDecoder = new EVMScriptDecoder([
-  new providers.Etherscan('mainnet', ETHERSCAN_API_KEY),
+  new providers.Etherscan({ network: 'mainnet', apiKey: ETHERSCAN_API_KEY }),
 ])
 
 const decodedEVMScript = await etherscanEVMScriptDecoder.decode(evmScript)
@@ -139,56 +139,69 @@ const evmScriptDecoder = new EVMScriptDecoder([
   new providers.Local({
     '0x7899EF901Ed9B331bAf7759c15D2e8728e8c2a2C': [],
   }),
-  new providers.Etherscan('rinkeby', ETHERSCAN_API_KEY),
+  new providers.Etherscan({ network: 'mainnet', apiKey: ETHERSCAN_API_KEY }),
 ])
 ```
 
 In this case EVMScriptDecoder will use passed providers one by one to retrieve ABIs, while some of them will not return the result.
+
+You can find more examples of usage of scripts decoding in `/examples` folder.
 
 ### EVMScriptDecoder.encodeEVMScript()
 
 Might be used for convenient creation of EVMScripts. This method has next overloads:
 
 ```javascript
+import { defaultAbiCoder } from '@ethersproject/abi'
 import { EVMScriptDecoder, providers } from './index'
 const evmScriptDecoder = new EVMScriptDecoder([
   new providers.Local({
     '0x7899EF901Ed9B331bAf7759c15D2e8728e8c2a2C': [],
   }),
-  new providers.Etherscan('rinkeby', ETHERSCAN_API_KEY),
+  new providers.Etherscan({ network: 'mainnet', apiKey: ETHERSCAN_API_KEY }),
 ])
 
 // encodeEVMScript might be called with list of calls, EVMScript has to contain
 // for 'method' property might be used method name, or method id or method signature
-const evmScriptManyCalls = await decoder.encodeEVMScript([
-  {
-    address: '0x07804b6667d649c819dfa94af50c782c26f5abc3',
-    method: 'removeRewardProgram',
-    params: ['0x922c10dafffb8b9be4c40d3829c8c708a12827f3'],
-  },
-])
+const evmScriptManyCalls = await decoder.encodeEVMScript({
+  calls: [
+    {
+      address: '0x07804b6667d649c819dfa94af50c782c26f5abc3',
+      methodName: 'removeRewardProgram',
+      decodedCallData: ['0x922c10dafffb8b9be4c40d3829c8c708a12827f3'],
+    },
+  ],
+})
 
 // If your EVMScript must contain many calls to same address, it might
 // be convenient to use next overload. Notice also, that in this case for
 // method was used methodId.
-const evmScriptOneAddressManyCalls = await decoder.encodeEVMScript(
-  '0x07804b6667d649c819dfa94af50c782c26f5abc3',
-  [
+const evmScriptOneAddressManyCalls = await decoder.encodeEVMScript({
+  address: '0x07804b6667d649c819dfa94af50c782c26f5abc3',
+  calls: [
     {
-      method: '0x945233e2',
-      params: ['0x922c10dafffb8b9be4c40d3829c8c708a12827f3'],
+      methodId: '0x945233e2',
+      decodedCallData: ['0x922c10dafffb8b9be4c40d3829c8c708a12827f3'],
     },
-  ]
-)
+  ],
+})
 
-// When you only have to call one method in EVMScript, next overload
-// will be helpful. We used method signature as method value in this case.
-// It might be helpful when your contract contains overloaded methods
-const evmScriptOneCall = await decoder.encodeEVMScript(
-  '0x07804b6667d649c819dfa94af50c782c26f5abc3',
-  'removeRewardProgram(address)',
-  ['0x922c10dafffb8b9be4c40d3829c8c708a12827f3']
-)
+// It also might be called with encodedCallData. It might be especially
+// helpful when you call it with 'methodId' or 'signature'  keys.
+// In such case EVMScriptDecoder can encode EVMScript without any providers
+const evmScriptDecoderWithoutProviders = new EVMScriptDecoder()
+const evmScriptEncodedCallData = await decoder.encodeEVMScript({
+  address: '0x07804b6667d649c819dfa94af50c782c26f5abc3',
+  calls: [
+    {
+      signature: 'removeRewardProgram(address)',
+      encodedCallData: defaultAbiCoder.encode(
+        ['address'],
+        ['0x922c10dafffb8b9be4c40d3829c8c708a12827f3']
+      ),
+    },
+  ],
+})
 ```
 
 The results of all above method calls are the same.
