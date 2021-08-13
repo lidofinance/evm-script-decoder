@@ -1,6 +1,5 @@
 import fetch from 'node-fetch'
-import { EVMScriptDecoder, providers } from '../src/index'
-import { DefaultImplMethodNames, ProxyABIMiddleware } from '../src/ProxyABIMiddleware'
+import { EVMScriptDecoder, providers, middlewares, DefaultImplMethodNames } from '../src/index'
 import { ETHERSCAN_API_KEY } from './constants'
 import { Contract, providers as ethersProviders } from 'ethers'
 
@@ -44,7 +43,7 @@ async function main() {
       apiKey: ETHERSCAN_API_KEY,
       fetch,
       middlewares: [
-        ProxyABIMiddleware({
+        middlewares.ProxyABIMiddleware({
           implMethodNames: [...DefaultImplMethodNames, '__Proxy_implementation'],
           async loadImplAddress(proxyAddress, abiElement) {
             const contract = new Contract(
