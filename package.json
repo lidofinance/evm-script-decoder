@@ -11,15 +11,14 @@
   "license": "ISC",
   "dependencies": {
     "@ethersproject/abi": "^5.0.7",
-    "keccak256": "^1.0.3",
-    "node-fetch": "^2.6.1",
-    "ts-mockito": "^2.6.1"
+    "keccak256": "^1.0.3"
   },
   "devDependencies": {
     "@types/node-fetch": "^2.5.12",
     "ava": "^3.15.0",
     "ethers": "^5.4.4",
     "jest": "^27.0.6",
+    "node-fetch": "^2.6.1",
     "nyc": "^15.1.0",
     "prettier": "2.3.2",
     "ts-node": "^10.1.0",
