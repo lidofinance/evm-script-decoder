@@ -7,7 +7,7 @@ import {
   TEST_ABI_ELEMENT,
   fetchMock,
 } from './_helpers'
-import { middlewares, providers } from '../src/index'
+import { providers } from '../src/index'
 
 test('getABI() request failed', async (t) => {
   const provider = new providers.Etherscan({

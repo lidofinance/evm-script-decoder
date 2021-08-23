@@ -1,13 +1,7 @@
 import test from 'ava'
 import { defaultAbiCoder } from '@ethersproject/abi'
-import { providers, EVMScriptDecoder, middlewares } from '../src/index'
-import {
-  TEST_ABI_ELEMENT,
-  TEST_ADDRESS,
-  NOT_REGISTERED_ADDRESS,
-  fetchMock,
-  createFetchMock,
-} from './_helpers'
+import { providers, EVMScriptDecoder } from '../src/index'
+import { TEST_ABI_ELEMENT, TEST_ADDRESS, NOT_REGISTERED_ADDRESS, fetchMock } from './_helpers'
 
 const REWARD_ADDRESS = '0x922c10dafffb8b9be4c40d3829c8c708a12827f3'
 
