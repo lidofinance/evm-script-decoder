@@ -44,7 +44,7 @@ async function main() {
       },
     ],
   })
-  console.log('Example of encoded EVMScript by method name and encodedCallData:')
+  console.log('Example of encoded EVMScript by method name and decodedCallData:')
   console.log(encodedEVMScriptByMethodNameAndEncodedCallData)
 
   const encodedEVMScriptByMethodNameAndDecodedCallData = await decoder.encodeEVMScript({

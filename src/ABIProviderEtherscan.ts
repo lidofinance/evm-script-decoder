@@ -29,7 +29,7 @@ export class ABIProviderEtherscan extends ABIProviderRemote {
       fetcher: DefaultEtherscanFetcher({
         fetch: config.fetch || globalThis.fetch.bind(globalThis),
         apiKey: config.apiKey,
-        network: config.network,
+        network: config.network || 'mainnet',
       }),
       middlewares: config.middlewares,
     })

@@ -1,4 +1,4 @@
-import { ABIElement, ABIProvider, Network, Fetcher, Address } from './types'
+import { ABIElement, ABIProvider, Address } from './types'
 
 export interface MiddlewareContext {
   abiProvider: ABIProvider

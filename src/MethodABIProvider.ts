@@ -24,7 +24,7 @@ export class MethodABIProvider {
     } else if (methodName) {
       return Object.values(contractABI).find((abi) => abi.name === methodName)
     }
-    throw new Error('Invalid MethodInfo')
+    throw new Error('Invalid method info')
   }
 
   private async retrieveContractABI(address: Address) {

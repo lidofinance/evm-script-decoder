@@ -9,7 +9,7 @@ import {
   MethodInfo,
 } from './types'
 import { MethodABIProvider } from './MethodABIProvider'
-import { ABIMethodInfo, SignatureMethodInfo } from './MethodInfo'
+import { FullMethodInfo } from './FullMethodInfo'
 
 const DEFAULT_SPEC_ID = '0x00000001'
 
@@ -23,9 +23,9 @@ export class EVMScriptDecoder {
   async decodeEVMScript(evmScript: EVMScriptEncoded): Promise<EVMScriptDecoded> {
     const parsedScript: EVMScriptDecoded = EVMScriptParser.parse(evmScript)
     for (const call of parsedScript.calls) {
-      const methodInfo = (await this.findMethodInfo(call.address, {
+      const methodInfo = await this.findMethodInfo(call.address, {
         methodId: call.methodId,
-      })) as ABIMethodInfo
+      })
       call.abi = methodInfo?.abi
       call.decodedCallData = await methodInfo?.decodeMethodParams(call.encodedCallData)
     }
@@ -45,7 +45,7 @@ export class EVMScriptDecoder {
     defaultAddress?: Address
   ) {
     let { address = defaultAddress, encodedCallData, methodId } = evmScriptCall
-    let methodInfo: SignatureMethodInfo | undefined
+    let methodInfo: FullMethodInfo | undefined
     if (encodedCallData === undefined) {
       methodInfo = await this.getMethodInfo(address, evmScriptCall)
       encodedCallData = methodInfo.encodeMethodParams(evmScriptCall.decodedCallData)
@@ -72,11 +72,11 @@ export class EVMScriptDecoder {
 
   private async findMethodInfo(address: Address, methodInfo: MethodInfo) {
     if (methodInfo.signature) {
-      return new SignatureMethodInfo(address, methodInfo.signature)
+      return FullMethodInfo.fromSignature(address, methodInfo.signature)
     }
     const methodABI = await this.methodABIProvider.retrieveMethodABI(address, methodInfo)
     if (methodABI) {
-      return new ABIMethodInfo(address, methodABI)
+      return FullMethodInfo.fromABI(address, methodABI)
     }
   }
 }
