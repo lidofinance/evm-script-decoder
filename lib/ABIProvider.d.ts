@@ -1,23 +1,23 @@
-import { ABIElement, ABIProvider, Address } from './types';
-export interface MiddlewareContext {
+import { ABIElement, Address } from './types';
+export interface ABIProviderMiddlewareContext {
     abiProvider: ABIProvider;
     address: string;
     abi: ABIElement[];
 }
-interface ABIProviderMiddleware {
-    (ctx: MiddlewareContext): Promise<ABIElement[]>;
+export interface ABIProviderMiddleware {
+    (ctx: ABIProviderMiddlewareContext): Promise<ABIElement[]>;
 }
 interface ABIFetcher {
     (address: Address): Promise<ABIElement[]>;
 }
-interface ABIProviderRemoteConfig {
+interface ABIProviderConfig {
     fetcher: ABIFetcher;
     middlewares?: ABIProviderMiddleware[];
 }
-export declare class ABIProviderRemote implements ABIProvider {
+export declare class ABIProvider {
     private readonly fetcher;
     private readonly middlewares;
-    constructor(config: ABIProviderRemoteConfig);
+    constructor(config: ABIProviderConfig);
     getABI(contract: string): Promise<ABIElement[]>;
 }
 export {};

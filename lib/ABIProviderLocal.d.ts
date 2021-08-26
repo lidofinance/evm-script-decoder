@@ -1,6 +1,5 @@
-import { ABIElement, ABIProvider } from './types';
-export declare class ABIProviderLocal implements ABIProvider {
-    private readonly abis;
+import { ABIProvider } from './ABIProvider';
+import { ABIElement } from './types';
+export declare class ABIProviderLocal extends ABIProvider {
     constructor(abiByAddress: Record<string, ABIElement[]>);
-    getABI(address: string): Promise<ABIElement[]>;
 }

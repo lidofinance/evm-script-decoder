@@ -1,15 +1,15 @@
 import { ABIProviderEtherscan } from './ABIProviderEtherscan';
 import { ABIProviderLocal } from './ABIProviderLocal';
-import { ABIProviderRemote } from './ABIProviderRemote';
+import { ABIProvider, ABIProviderMiddleware, ABIProviderMiddlewareContext } from './ABIProvider';
 import { ProxyABIMiddleware } from './ProxyABIMiddleware';
 export * from './EVMScriptDecoder';
 export * from './EVMScriptParser';
-export { DefaultImplMethodNames } from './ProxyABIMiddleware';
-export declare const providers: {
-    Etherscan: typeof ABIProviderEtherscan;
+export declare const abiProviders: {
+    Base: typeof ABIProvider;
     Local: typeof ABIProviderLocal;
-    Remote: typeof ABIProviderRemote;
+    Etherscan: typeof ABIProviderEtherscan;
+    middlewares: {
+        ProxyABIMiddleware: typeof ProxyABIMiddleware;
+    };
 };
-export declare const middlewares: {
-    ProxyABIMiddleware: typeof ProxyABIMiddleware;
-};
+export { ABIProviderMiddleware, ABIProviderMiddlewareContext };
