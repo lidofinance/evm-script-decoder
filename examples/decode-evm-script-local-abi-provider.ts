@@ -1,12 +1,12 @@
-import { EVMScriptDecoder, providers } from '../src/index'
+import { EVMScriptDecoder, abiProviders } from '../src/index'
 import { CONTRACT_ABI, LOCAL_EVM_SCRIPT_EXAMPLE, REMOTE_EVM_SCRIPT_EXAMPLE } from './constants'
 
 async function main() {
-  const decoder = new EVMScriptDecoder([
-    new providers.Local({
+  const decoder = new EVMScriptDecoder(
+    new abiProviders.Local({
       '0x7899EF901Ed9B331bAf7759c15D2e8728e8c2a2C': CONTRACT_ABI,
-    }),
-  ])
+    })
+  )
 
   const unknownAddressDecodedEVMScript = await decoder.decodeEVMScript(REMOTE_EVM_SCRIPT_EXAMPLE)
   console.log(

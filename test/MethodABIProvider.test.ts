@@ -1,11 +1,11 @@
 import test from 'ava'
-import { providers } from '../src/index'
+import { abiProviders } from '../src/index'
 import { MethodABIProvider } from '../src/MethodABIProvider'
 import { createFetchMock, fetchMock, TEST_ABI_ELEMENT, TEST_ADDRESS } from './_helpers'
 
 test('retrieveMethodABI by methodId', async (t) => {
   const provider = new MethodABIProvider([
-    new providers.Etherscan({
+    new abiProviders.Etherscan({
       apiKey: 'MOCK_API_KEY',
       fetch: fetchMock,
     }),
@@ -16,7 +16,7 @@ test('retrieveMethodABI by methodId', async (t) => {
 
 test('retrieveMethodABI by signature', async (t) => {
   const provider = new MethodABIProvider([
-    new providers.Etherscan({
+    new abiProviders.Etherscan({
       apiKey: 'MOCK_API_KEY',
       fetch: fetchMock,
     }),
@@ -29,7 +29,7 @@ test('retrieveMethodABI by signature', async (t) => {
 
 test('retrieveMethodABI by methodName', async (t) => {
   const provider = new MethodABIProvider([
-    new providers.Etherscan({
+    new abiProviders.Etherscan({
       apiKey: 'MOCK_API_KEY',
       fetch: fetchMock,
     }),
@@ -42,7 +42,7 @@ test('retrieveMethodABI by methodName', async (t) => {
 
 test('retrieveMethodABI by wrong method info', async (t) => {
   const provider = new MethodABIProvider([
-    new providers.Etherscan({
+    new abiProviders.Etherscan({
       apiKey: 'MOCK_API_KEY',
       fetch: fetchMock,
     }),
@@ -58,7 +58,7 @@ test('retrieveMethodABI cached value', async (t) => {
     response: { message: 'OK', result: JSON.stringify([TEST_ABI_ELEMENT]) },
   })
   const provider = new MethodABIProvider([
-    new providers.Etherscan({
+    new abiProviders.Etherscan({
       fetch,
       apiKey: 'MOCK_API_KEY',
     }),

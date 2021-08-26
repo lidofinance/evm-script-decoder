@@ -1,6 +1,6 @@
 import test from 'ava'
 import { defaultAbiCoder } from '@ethersproject/abi'
-import { providers, EVMScriptDecoder } from '../src/index'
+import { abiProviders, EVMScriptDecoder } from '../src/index'
 import { TEST_ABI_ELEMENT, TEST_ADDRESS, NOT_REGISTERED_ADDRESS, fetchMock } from './_helpers'
 
 const REWARD_ADDRESS = '0x922c10dafffb8b9be4c40d3829c8c708a12827f3'
@@ -49,11 +49,11 @@ test.after(() => {
 })
 
 test('decodeEVMScript() local strategy address not registered', async (t) => {
-  const evmScriptDecoder = new EVMScriptDecoder([
-    new providers.Local({
+  const evmScriptDecoder = new EVMScriptDecoder(
+    new abiProviders.Local({
       [TEST_ADDRESS]: [TEST_ABI_ELEMENT],
-    }),
-  ])
+    })
+  )
   const decodedEVMScript = await evmScriptDecoder.decodeEVMScript(
     EVM_SCRIPT_WITH_NOT_REGISTERED_ADDRESS
   )
@@ -61,11 +61,11 @@ test('decodeEVMScript() local strategy address not registered', async (t) => {
 })
 
 test('decodeEVMScript() local strategy address registered', async (t) => {
-  const evmScriptDecoder = new EVMScriptDecoder([
-    new providers.Local({
+  const evmScriptDecoder = new EVMScriptDecoder(
+    new abiProviders.Local({
       [TEST_ADDRESS]: [TEST_ABI_ELEMENT],
-    }),
-  ])
+    })
+  )
   const decodedEVMScript = await evmScriptDecoder.decodeEVMScript(
     EVM_SCRIPT_WITH_REGISTERED_ADDRESS
   )
@@ -73,31 +73,31 @@ test('decodeEVMScript() local strategy address registered', async (t) => {
 })
 
 test('decodeEVMScript() etherscan strategy address not registered', async (t) => {
-  const evmScriptDecoder = new EVMScriptDecoder([
-    new providers.Etherscan({
+  const evmScriptDecoder = new EVMScriptDecoder(
+    new abiProviders.Etherscan({
       apiKey: 'ETHERSCAN_API_KEY',
-    }),
-  ])
+    })
+  )
   const decodedEVMScript = await evmScriptDecoder.decodeEVMScript(EVMScript(NOT_REGISTERED_ADDRESS))
   t.deepEqual(decodedEVMScript, DECODED_EVM_SCRIPT_INCOMPLETE)
 })
 
 test('decodeEVMScript() etherscan strategy address registered', async (t) => {
-  const evmScriptDecoder = new EVMScriptDecoder([
-    new providers.Etherscan({
+  const evmScriptDecoder = new EVMScriptDecoder(
+    new abiProviders.Etherscan({
       apiKey: 'ETHERSCAN_API_KEY',
-    }),
-  ])
+    })
+  )
   const decodedEVMScript = await evmScriptDecoder.decodeEVMScript(EVMScript(TEST_ADDRESS))
   t.deepEqual(decodedEVMScript, DECODED_EVM_SCRIPT_COMPLETE)
 })
 
 test('encodeEVMScript() with methodId and encoded calldata', async (t) => {
-  const decoder = new EVMScriptDecoder([
-    new providers.Etherscan({
+  const decoder = new EVMScriptDecoder(
+    new abiProviders.Etherscan({
       apiKey: 'ETHERSCAN_API_KEY',
-    }),
-  ])
+    })
+  )
 
   const encodedEVMScript = await decoder.encodeEVMScript({
     calls: [
@@ -112,11 +112,11 @@ test('encodeEVMScript() with methodId and encoded calldata', async (t) => {
 })
 
 test('encodeEVMScript() with signature and encoded calldata', async (t) => {
-  const decoder = new EVMScriptDecoder([
-    new providers.Etherscan({
+  const decoder = new EVMScriptDecoder(
+    new abiProviders.Etherscan({
       apiKey: 'ETHERSCAN_API_KEY',
-    }),
-  ])
+    })
+  )
 
   const encodedEVMScript = await decoder.encodeEVMScript({
     calls: [
@@ -131,11 +131,11 @@ test('encodeEVMScript() with signature and encoded calldata', async (t) => {
 })
 
 test('encodeEVMScript() with method name and decoded calldata', async (t) => {
-  const decoder = new EVMScriptDecoder([
-    new providers.Etherscan({
+  const decoder = new EVMScriptDecoder(
+    new abiProviders.Etherscan({
       apiKey: 'ETHERSCAN_API_KEY',
-    }),
-  ])
+    })
+  )
 
   const encodedEVMScript = await decoder.encodeEVMScript({
     calls: [
@@ -165,11 +165,11 @@ test('encodeEVMScript() without providers', async (t) => {
 })
 
 test('encodeEVMScript() with default address', async (t) => {
-  const decoder = new EVMScriptDecoder([
-    new providers.Etherscan({
+  const decoder = new EVMScriptDecoder(
+    new abiProviders.Etherscan({
       apiKey: 'ETHERSCAN_API_KEY',
-    }),
-  ])
+    })
+  )
 
   const encodedEVMScript = await decoder.encodeEVMScript({
     address: TEST_ADDRESS,
@@ -184,11 +184,11 @@ test('encodeEVMScript() with default address', async (t) => {
 })
 
 test('encodeEVMScript() method not found', async (t) => {
-  const decoder = new EVMScriptDecoder([
-    new providers.Etherscan({
+  const decoder = new EVMScriptDecoder(
+    new abiProviders.Etherscan({
       apiKey: 'ETHERSCAN_API_KEY',
-    }),
-  ])
+    })
+  )
   await t.throwsAsync(
     () =>
       decoder.encodeEVMScript({

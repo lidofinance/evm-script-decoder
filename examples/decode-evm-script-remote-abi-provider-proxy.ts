@@ -1,5 +1,5 @@
 import fetch from 'node-fetch'
-import { EVMScriptDecoder, providers, middlewares, DefaultImplMethodNames } from '../src/index'
+import { EVMScriptDecoder, abiProviders } from '../src/index'
 import { ETHERSCAN_API_KEY } from './constants'
 import { Contract, providers as ethersProviders } from 'ethers'
 
@@ -20,13 +20,13 @@ const EVM_SCRIPT_EXAMPLE =
   '0000000000000000000000000000000000000000000000000de0b6b3a7640000'
 
 async function main() {
-  const proxyOffDecoder = new EVMScriptDecoder([
-    new providers.Etherscan({
+  const proxyOffDecoder = new EVMScriptDecoder(
+    new abiProviders.Etherscan({
       network: 'rinkeby',
       apiKey: ETHERSCAN_API_KEY,
       fetch,
-    }),
-  ])
+    })
+  )
 
   const unproxiedContractDecodedEVMScript = await proxyOffDecoder.decodeEVMScript(
     EVM_SCRIPT_EXAMPLE
@@ -37,14 +37,17 @@ async function main() {
   )
   console.dir(unproxiedContractDecodedEVMScript, { depth: 5 })
 
-  const proxyOnDecoder = new EVMScriptDecoder([
-    new providers.Etherscan({
+  const proxyOnDecoder = new EVMScriptDecoder(
+    new abiProviders.Etherscan({
       network: 'rinkeby',
       apiKey: ETHERSCAN_API_KEY,
       fetch,
       middlewares: [
-        middlewares.ProxyABIMiddleware({
-          implMethodNames: [...DefaultImplMethodNames, '__Proxy_implementation'],
+        abiProviders.middlewares.ProxyABIMiddleware({
+          implMethodNames: [
+            ...abiProviders.middlewares.ProxyABIMiddleware.DefaultImplMethodNames,
+            '__Proxy_implementation',
+          ],
           async loadImplAddress(proxyAddress, abiElement) {
             const contract = new Contract(
               proxyAddress,
@@ -55,8 +58,8 @@ async function main() {
           },
         }),
       ],
-    }),
-  ])
+    })
+  )
 
   const proxiedContractDecodedEVMScript = await proxyOnDecoder.decodeEVMScript(EVM_SCRIPT_EXAMPLE)
   console.log(

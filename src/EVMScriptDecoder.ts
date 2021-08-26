@@ -16,7 +16,7 @@ const DEFAULT_SPEC_ID = '0x00000001'
 export class EVMScriptDecoder {
   private readonly methodABIProvider: MethodABIProvider
 
-  constructor(providers: ABIProvider[] = []) {
+  constructor(...providers: ABIProvider[]) {
     this.methodABIProvider = new MethodABIProvider(providers)
   }
 

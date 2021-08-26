@@ -1,5 +1,5 @@
 import fetch from 'node-fetch'
-import { EVMScriptDecoder, providers } from '../src/index'
+import { EVMScriptDecoder, abiProviders } from '../src/index'
 import {
   ETHERSCAN_API_KEY,
   createEVMScriptExample,
@@ -9,13 +9,13 @@ import {
 } from './constants'
 
 async function main() {
-  const decoder = new EVMScriptDecoder([
-    new providers.Etherscan({
+  const decoder = new EVMScriptDecoder(
+    new abiProviders.Etherscan({
       network: 'rinkeby',
       apiKey: ETHERSCAN_API_KEY,
       fetch,
-    }),
-  ])
+    })
+  )
 
   const notContractDecodedEVMScript = await decoder.decodeEVMScript(
     createEVMScriptExample(NOT_CONTRACT_ADDRESS)

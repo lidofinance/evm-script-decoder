@@ -7,10 +7,10 @@ import {
   TEST_ABI_ELEMENT,
   fetchMock,
 } from './_helpers'
-import { providers } from '../src/index'
+import { abiProviders } from '../src/index'
 
 test('getABI() request failed', async (t) => {
-  const provider = new providers.Etherscan({
+  const provider = new abiProviders.Etherscan({
     apiKey: 'MOCK_API_KEY',
     fetch: fetchMockErrorResponse,
   })
@@ -24,7 +24,7 @@ test('getABI() creates correct url', async (t) => {
     status: 200,
     response: { message: 'OK', result: JSON.stringify([TEST_ABI_ELEMENT]) },
   })
-  const provider = new providers.Etherscan({
+  const provider = new abiProviders.Etherscan({
     apiKey: 'MOCK_API_KEY',
     network: 'rinkeby',
     fetch,
@@ -36,7 +36,7 @@ test('getABI() creates correct url', async (t) => {
 })
 
 test('getABI() etherscan response is NOTOK', async (t) => {
-  const provider = new providers.Etherscan({
+  const provider = new abiProviders.Etherscan({
     apiKey: 'MOCK_API_KEY',
     fetch: fetchMockInvalidAPIKey,
   })
@@ -47,7 +47,7 @@ test('getABI() etherscan response is NOTOK', async (t) => {
 
 test('getABI() with middlewares', async (t) => {
   let isMiddlewareCalled = false
-  const provider = new providers.Etherscan({
+  const provider = new abiProviders.Etherscan({
     apiKey: 'MOCK_API_KEY',
     fetch: fetchMock,
     middlewares: [

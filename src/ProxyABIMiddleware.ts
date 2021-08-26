@@ -6,6 +6,8 @@ interface ProxyABIMiddlewareConfig {
   loadImplAddress(proxyAddress: Address, implMethodAbi: ABIElement): Promise<Address | undefined>
 }
 
+const DefaultImplMethodNames = Object.freeze(['implementation'])
+
 export function ProxyABIMiddleware(config: ProxyABIMiddlewareConfig) {
   const { loadImplAddress } = config
   return async (ctx: ABIProviderMiddlewareContext) => {
@@ -21,4 +23,4 @@ export function ProxyABIMiddleware(config: ProxyABIMiddlewareConfig) {
   }
 }
 
-export const DefaultImplMethodNames = Object.freeze(['implementation'])
+ProxyABIMiddleware.DefaultImplMethodNames = DefaultImplMethodNames

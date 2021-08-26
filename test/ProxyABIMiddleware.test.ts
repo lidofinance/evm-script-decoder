@@ -1,5 +1,5 @@
 import test from 'ava'
-import { middlewares, providers } from '../src/index'
+import { abiProviders } from '../src/index'
 import { ABIElement, Address } from '../src/types'
 import { fetchMock, NOT_REGISTERED_ADDRESS, TEST_ABI_ELEMENT, TEST_ADDRESS } from './_helpers'
 
@@ -14,9 +14,9 @@ test('called on contract with implementation method', async (t) => {
       return TEST_ADDRESS
     },
   }
-  const middleware = middlewares.ProxyABIMiddleware(config)
+  const middleware = abiProviders.middlewares.ProxyABIMiddleware(config)
   const ctx = {
-    abiProvider: new providers.Etherscan({ apiKey: 'MOCK_API_KEY', fetch: fetchMock }),
+    abiProvider: new abiProviders.Etherscan({ apiKey: 'MOCK_API_KEY', fetch: fetchMock }),
     address: TEST_ADDRESS,
     abi: [TEST_ABI_ELEMENT],
   }
@@ -41,9 +41,9 @@ test('called on contract without implementation method', async (t) => {
       return NOT_REGISTERED_ADDRESS
     },
   }
-  const middleware = middlewares.ProxyABIMiddleware(config)
+  const middleware = abiProviders.middlewares.ProxyABIMiddleware(config)
   const ctx = {
-    abiProvider: new providers.Etherscan({ apiKey: 'MOCK_API_KEY', fetch: fetchMock }),
+    abiProvider: new abiProviders.Etherscan({ apiKey: 'MOCK_API_KEY', fetch: fetchMock }),
     address: TEST_ADDRESS,
     abi: [TEST_ABI_ELEMENT],
   }
