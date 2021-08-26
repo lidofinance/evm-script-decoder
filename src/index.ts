@@ -1,6 +1,6 @@
 import { ABIProviderEtherscan } from './ABIProviderEtherscan'
 import { ABIProviderLocal } from './ABIProviderLocal'
-import { ABIProvider } from './ABIProvider'
+import { ABIProvider, ABIProviderMiddleware, ABIProviderMiddlewareContext } from './ABIProvider'
 import { ProxyABIMiddleware } from './ProxyABIMiddleware'
 
 export * from './EVMScriptDecoder'
@@ -14,3 +14,5 @@ export const abiProviders = {
     ProxyABIMiddleware,
   },
 }
+
+export { ABIProviderMiddleware, ABIProviderMiddlewareContext }
