@@ -44,12 +44,13 @@ Above `console.log` will display next output:
 
 ### EVMScriptDecoder.decodeEVMScript()
 
-Additionally to parsing, EVMScriptDecoder tries to decode callData and find abi for every method called in EVMScript.
+Additionally to parsing, EVMScriptDecoder tries to decode calldata and find abi for every method called in EVMScript.
 
-To get ABI of method, EVMScriptDecoder uses ABIProviders. Out of the box included two types of ABIProviders:
+To get ABI of method, EVMScriptDecoder uses ABIProviders. Out of the box included three types of ABIProviders:
 
-- `Etherscan` - uses Etherscan API to retrieve ABIs
+- `Base` - base class to implement own providers
 - `Local` - search method ABIs in passed dictionary
+- `Etherscan` - uses Etherscan API to retrieve ABIs
 
 Example of usage of `EVMScriptDecoder` with Etherscan provider:
 

@@ -1,15 +1,5 @@
-import { ABIProviderRemote } from './ABIProviderRemote'
-import { ABIElement, ABIProvider, Network, Fetcher, Address } from './types'
-
-export interface MiddlewareContext {
-  abiProvider: ABIProvider
-  address: string
-  abi: ABIElement[]
-}
-
-interface ABIProviderMiddleware {
-  (ctx: MiddlewareContext): Promise<ABIElement[]>
-}
+import { ABIProvider, ABIProviderMiddleware } from './ABIProvider'
+import { Network, Fetcher, Address } from './types'
 
 interface EtherscanResponse {
   message: 'OK' | 'NOTOK'
@@ -23,7 +13,7 @@ interface ABIProviderEtherscanConfig {
   middlewares?: ABIProviderMiddleware[]
 }
 
-export class ABIProviderEtherscan extends ABIProviderRemote {
+export class ABIProviderEtherscan extends ABIProvider {
   constructor(config: ABIProviderEtherscanConfig) {
     super({
       fetcher: DefaultEtherscanFetcher({

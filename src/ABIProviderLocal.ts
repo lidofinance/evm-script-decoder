@@ -1,17 +1,23 @@
-import { ABIElement, ABIProvider } from './types'
+import { ABIProvider } from './ABIProvider'
+import { ABIElement, Address } from './types'
 
-export class ABIProviderLocal implements ABIProvider {
-  private readonly abis: Record<string, ABIElement[]> = {}
+export class ABIProviderLocal extends ABIProvider {
   constructor(abiByAddress: Record<string, ABIElement[]>) {
-    for (const [address, abi] of Object.entries(abiByAddress)) {
-      this.abis[address.toLowerCase()] = abi
-    }
+    super({
+      fetcher: LocalFetcher(abiByAddress),
+    })
   }
+}
 
-  async getABI(address: string): Promise<ABIElement[]> {
-    if (!this.abis[address]) {
+function LocalFetcher(abiByAddress: Record<string, ABIElement[]>) {
+  const abis: Record<string, ABIElement[]> = {}
+  for (const [address, abi] of Object.entries(abiByAddress)) {
+    abis[address.toLowerCase()] = abi
+  }
+  return async (address: Address) => {
+    if (!abis[address]) {
       throw new Error(`ABI for contract ${address} wasn't provided`)
     }
-    return this.abis[address]
+    return abis[address]
   }
 }

@@ -1,4 +1,4 @@
-import { MiddlewareContext } from './ABIProviderEtherscan'
+import { ABIProviderMiddlewareContext } from './ABIProvider'
 import { ABIElement, Address } from './types'
 
 interface ProxyABIMiddlewareConfig {
@@ -8,7 +8,7 @@ interface ProxyABIMiddlewareConfig {
 
 export function ProxyABIMiddleware(config: ProxyABIMiddlewareConfig) {
   const { loadImplAddress } = config
-  return async (ctx: MiddlewareContext) => {
+  return async (ctx: ABIProviderMiddlewareContext) => {
     const { abi, address, abiProvider } = ctx
     const implMethodNames = config.implMethodNames || DefaultImplMethodNames
     const implMethod = abi.find((abi) => implMethodNames.includes(abi.name))

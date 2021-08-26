@@ -1,29 +1,29 @@
-import { ABIElement, ABIProvider, Address } from './types'
+import { ABIElement, Address } from './types'
 
-export interface MiddlewareContext {
+export interface ABIProviderMiddlewareContext {
   abiProvider: ABIProvider
   address: string
   abi: ABIElement[]
 }
 
-interface ABIProviderMiddleware {
-  (ctx: MiddlewareContext): Promise<ABIElement[]>
+export interface ABIProviderMiddleware {
+  (ctx: ABIProviderMiddlewareContext): Promise<ABIElement[]>
 }
 
 interface ABIFetcher {
   (address: Address): Promise<ABIElement[]>
 }
 
-interface ABIProviderRemoteConfig {
+interface ABIProviderConfig {
   fetcher: ABIFetcher
   middlewares?: ABIProviderMiddleware[]
 }
 
-export class ABIProviderRemote implements ABIProvider {
+export class ABIProvider {
   private readonly fetcher: ABIFetcher
   private readonly middlewares: ABIProviderMiddleware[]
 
-  constructor(config: ABIProviderRemoteConfig) {
+  constructor(config: ABIProviderConfig) {
     this.fetcher = config.fetcher
     this.middlewares = config.middlewares || []
   }

@@ -1,6 +1,6 @@
 import { ABIProviderEtherscan } from './ABIProviderEtherscan'
 import { ABIProviderLocal } from './ABIProviderLocal'
-import { ABIProviderRemote } from './ABIProviderRemote'
+import { ABIProvider } from './ABIProvider'
 import { ProxyABIMiddleware } from './ProxyABIMiddleware'
 
 export * from './EVMScriptDecoder'
@@ -10,7 +10,7 @@ export { DefaultImplMethodNames } from './ProxyABIMiddleware'
 export const providers = {
   Etherscan: ABIProviderEtherscan,
   Local: ABIProviderLocal,
-  Remote: ABIProviderRemote,
+  Base: ABIProvider,
 }
 
 export const middlewares = {
