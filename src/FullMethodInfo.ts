@@ -20,7 +20,7 @@ export class FullMethodInfo {
   constructor(address: Address, signature: string, abi?: ABIElement) {
     this.address = address
     this.signature = signature
-    const signatureParamsRegex = /\(([a-zA-Z0-9,()]*)\)/i
+    const signatureParamsRegex = /\(([a-zA-Z0-9,\(\)\[\]]*)\)/i
     const [, signatureParams] = signature.match(signatureParamsRegex)
     this.params = signatureParams.split(',')
     this.methodId = '0x' + keccak256(signature).toString('hex').slice(0, 8)
