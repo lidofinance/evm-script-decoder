@@ -4,6 +4,7 @@ export declare class EVMScriptDecoder {
     constructor(...providers: ABIProvider[]);
     decodeEVMScript(evmScript: EVMScriptEncoded): Promise<EVMScriptDecoded>;
     encodeEVMScript(evmScript: EVMScriptToEncode): Promise<string>;
+    private formatDecodedParams;
     private encodeEVMScriptCall;
     private getMethodInfo;
     private findMethodInfo;
