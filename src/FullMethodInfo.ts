@@ -1,6 +1,6 @@
 import { defaultAbiCoder } from '@ethersproject/abi'
 import keccak256 from 'keccak256'
-import { ABIElement, Address } from './types'
+import { ABIElement, Address, EVMScriptCall } from './types'
 
 export class FullMethodInfo {
   public signature: string
@@ -32,8 +32,6 @@ export class FullMethodInfo {
   }
 
   decodeMethodParams(encodedParams: string): any {
-    return defaultAbiCoder
-      .decode(this.params, encodedParams)
-      .map((param) => (param?._isBigNumber ? param.toString() : param))
+    return defaultAbiCoder.decode(this.params, encodedParams)
   }
 }

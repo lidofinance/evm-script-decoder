@@ -2,6 +2,8 @@ import test from 'ava'
 import { defaultAbiCoder } from '@ethersproject/abi'
 import { abiProviders, EVMScriptDecoder } from '../src/index'
 import { TEST_ABI_ELEMENT, TEST_ADDRESS, NOT_REGISTERED_ADDRESS, fetchMock } from './_helpers'
+import Treasury_abi from './_abi/Treasury.abi.json'
+import DepositSecurityModule_abi from './_abi/DepositSecurityModule.abi.json'
 
 const REWARD_ADDRESS = '0x922c10dafffb8b9be4c40d3829c8c708a12827f3'
 
@@ -202,4 +204,23 @@ test('encodeEVMScript() method not found', async (t) => {
       }),
     { message: 'Method ABI for method "removeRewardProgram" not found' }
   )
+})
+
+const TREASURY_ADDRESS = '0x4333218072D5d7008546737786663c38B4D561A4'
+const DEPOSIT_SECURITY_MODULE_ADDRESS = '0x7dc1c1ff64078f73c98338e2f17d1996ffbb2ede'
+const SCRIPT_WITH_NESTED_SCRIPT = '0x000000014333218072d5d7008546737786663c38b4d561a400000084d948d46800000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000040000000017dc1c1ff64078f73c98338e2f17d1996ffbb2ede0000002460c8a547000000000000000000000000000000000000000000000000000000000000007b'
+const ENCODED_NESTED_CALL_DATA = '123'
+
+test('Parse nested EVMScript', async (t) => {
+  const decoder = new EVMScriptDecoder(
+    new abiProviders.Local({
+      [TREASURY_ADDRESS]: Treasury_abi as any,
+      [DEPOSIT_SECURITY_MODULE_ADDRESS]: DepositSecurityModule_abi as any,
+    })
+  )
+  const r = await decoder.decodeEVMScript(SCRIPT_WITH_NESTED_SCRIPT)
+
+  t.is(r.calls[0].decodedCallData?.[0].calls.length, 1)
+  t.is(r.calls[0].decodedCallData?.[0].calls[0].address, DEPOSIT_SECURITY_MODULE_ADDRESS)
+  t.is(r.calls[0].decodedCallData?.[0].calls[0].decodedCallData[0], ENCODED_NESTED_CALL_DATA)
 })

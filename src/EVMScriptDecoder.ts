@@ -2,6 +2,7 @@ import { EVMScriptParser } from './EVMScriptParser'
 import {
   ABIProvider,
   Address,
+  EVMScriptCall,
   EVMScriptCallToEncode,
   EVMScriptDecoded,
   EVMScriptEncoded,
@@ -27,7 +28,9 @@ export class EVMScriptDecoder {
         methodId: call.methodId,
       })
       call.abi = methodInfo?.abi
-      call.decodedCallData = await methodInfo?.decodeMethodParams(call.encodedCallData)
+      const rawParams = await methodInfo?.decodeMethodParams(call.encodedCallData)
+      const formattedParams = await this.formatDecodedParams(rawParams, call?.abi?.inputs)
+      call.decodedCallData = formattedParams
     }
     return parsedScript
   }
@@ -38,6 +41,17 @@ export class EVMScriptDecoder {
       evmScriptEncoded += await this.encodeEVMScriptCall(evmScriptCallInput, evmScript.address)
     }
     return evmScriptEncoded
+  }
+
+  private async formatDecodedParams(rawParams: any[], inputs: EVMScriptCall['abi']['inputs'] | undefined) {
+    if (!rawParams) return rawParams
+    const formatters = rawParams.map((param, i) => {
+      if (param?._isBigNumber) return param.toString()
+      if (inputs && inputs[i].name === '_evmScript') return this.decodeEVMScript(param)
+      return param
+    })
+    const formatted = await Promise.all(formatters)
+    return formatted
   }
 
   private async encodeEVMScriptCall(
