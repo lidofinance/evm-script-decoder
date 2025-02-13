@@ -17,7 +17,7 @@ interface ABIElementInputOutput {
   type: string
   internalType?: string
   indexed?: boolean
-  components?: { name: string; type: string }[]
+  components?: ABIElementInputOutput[]
 }
 
 export interface EVMScriptDecoded {

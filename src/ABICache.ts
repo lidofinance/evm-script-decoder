@@ -24,7 +24,28 @@ export class ABICache {
   }
 }
 
-function getMethodId(abiElement: ABIElement): string {
-  const signature = `${abiElement.name}(${abiElement.inputs.map((i) => i.type).join(',')})`
+function getComplexType(input: ABIElement['inputs'][number]): string {
+  const isArray = input.type.includes('[')
+  if (!isArray) {
+    if (input.type === 'tuple' && input.components) {
+      return `(${input.components.map(getComplexType).join(',')})`
+    }
+    return input.type
+  }
+
+  const match = input.type.match(/^([a-zA-Z0-9_]+)(\[.*\])$/)
+  const [, baseType, arrayDimensions] = match
+
+  if (baseType === 'tuple' && input.components) {
+    return `(${input.components.map(getComplexType).join(',')})${arrayDimensions}`
+  }
+
+  return input.type
+}
+
+export function getMethodId(abiElement: ABIElement): string {
+  const inputTypes = abiElement.inputs.map(getComplexType).join(',')
+  const signature = `${abiElement.name}(${inputTypes})`
+
   return '0x' + keccak256(signature).toString('hex').slice(0, 8)
 }
