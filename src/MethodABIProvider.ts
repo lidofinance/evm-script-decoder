@@ -1,6 +1,6 @@
-import keccak256 from 'keccak256'
 import { ABICache } from './ABICache'
 import { ABIElement, ABIProvider, Address, MethodInfo } from './types'
+import { getMethodId } from './utils'
 
 export class MethodABIProvider {
   private readonly cache: ABICache
@@ -19,7 +19,7 @@ export class MethodABIProvider {
     if (methodId) {
       return contractABI[methodId]
     } else if (signature) {
-      const methodId = '0x' + keccak256(signature).toString('hex').slice(0, 8)
+      const methodId = getMethodId(signature)
       return contractABI[methodId]
     } else if (methodName) {
       return Object.values(contractABI).find((abi) => abi.name === methodName)

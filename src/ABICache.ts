@@ -1,5 +1,5 @@
-import keccak256 from 'keccak256'
 import { ABIElement, Address } from './types'
+import { getMethodId, getMethodSignature } from './utils'
 
 export class ABICache {
   // stores ABI elements by address by methodId
@@ -17,35 +17,10 @@ export class ABICache {
     const abiByMethodIds: Record<string, ABIElement> = {}
     const onlyMethodsABI = abi.filter((a) => a.name && a.inputs)
     for (const abiElement of onlyMethodsABI) {
-      const methodId = getMethodId(abiElement)
+      const signature = getMethodSignature(abiElement)
+      const methodId = getMethodId(signature)
       abiByMethodIds[methodId] = abiElement
     }
     this.data[address] = abiByMethodIds
   }
-}
-
-function getComplexType(input: ABIElement['inputs'][number]): string {
-  const isArray = input.type.includes('[')
-  if (!isArray) {
-    if (input.type === 'tuple' && input.components) {
-      return `(${input.components.map(getComplexType).join(',')})`
-    }
-    return input.type
-  }
-
-  const match = input.type.match(/^([a-zA-Z0-9_]+)(\[.*\])$/)
-  const [, baseType, arrayDimensions] = match
-
-  if (baseType === 'tuple' && input.components) {
-    return `(${input.components.map(getComplexType).join(',')})${arrayDimensions}`
-  }
-
-  return input.type
-}
-
-export function getMethodId(abiElement: ABIElement): string {
-  const inputTypes = abiElement.inputs.map(getComplexType).join(',')
-  const signature = `${abiElement.name}(${inputTypes})`
-
-  return '0x' + keccak256(signature).toString('hex').slice(0, 8)
 }
