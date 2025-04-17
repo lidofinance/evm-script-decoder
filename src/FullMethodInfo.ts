@@ -30,38 +30,41 @@ export class FullMethodInfo {
     const signatureParamsRegex = /\((.*)\)/
     const [, signatureParams] = signature.match(signatureParamsRegex)
 
-    // Find balanced parentheses chunks and add 'tuple' prefix if they're array types
-    let depth = 0
-    let currentParam = ''
     const params: string[] = []
+    let currentParam = ''
+    let parentDepth = 0
+    let bracketDepth = 0
 
     for (let i = 0; i < signatureParams.length; i++) {
       const char = signatureParams[i]
 
-      if (char === '(') depth++
-      if (char === ')') depth--
+      // Track depth of parentheses
+      if (char === '(') parentDepth++
+      if (char === ')') parentDepth--
 
-      if (depth === 0 && char === ',') {
+      // Track depth of brackets
+      if (char === '[') bracketDepth++
+      if (char === ']') bracketDepth--
+
+      // Only split parameters at top level commas
+      if (char === ',' && parentDepth === 0 && bracketDepth === 0) {
         params.push(currentParam.trim())
         currentParam = ''
-      } else {
-        currentParam += char
-        // Check if it's end of string or next char is array marker
-        if (i === signatureParams.length - 1 || (signatureParams[i + 1] === '[' && depth === 0)) {
-          // Capture the array marker if present
-          if (signatureParams[i + 1] === '[') {
-            currentParam += '[]'
-            i += 2 // Skip the [] characters
-          }
-          if (currentParam.startsWith('(')) {
-            currentParam = 'tuple' + currentParam
-          }
-        }
+        continue
       }
+
+      // Handle tuple type detection
+      if (char === '(' && parentDepth === 1 && !currentParam.includes('tuple')) {
+        currentParam = 'tuple' + currentParam
+      }
+
+      currentParam += char
     }
 
-    // Push the last param
-    params.push(currentParam.trim())
+    // Push the last param if there is one
+    if (currentParam.trim()) {
+      params.push(currentParam.trim())
+    }
 
     return params
   }

@@ -5,6 +5,8 @@ import { TEST_ABI_ELEMENT, TEST_ADDRESS, NOT_REGISTERED_ADDRESS, fetchMock } fro
 import Treasury_abi from './_abi/Treasury.abi.json'
 import DepositSecurityModule_abi from './_abi/DepositSecurityModule.abi.json'
 import DualGovernance_abi from './_abi/DualGovernance.abi.json'
+import ComplexStructures_abi from './_abi/ComplexStructures.abi.json'
+import { BigNumber, utils } from 'ethers'
 
 const REWARD_ADDRESS = '0x922c10dafffb8b9be4c40d3829c8c708a12827f3'
 
@@ -248,4 +250,298 @@ test('Parse script with complex inputs', async (t) => {
   t.is(decodedTuple[0], '0xE92329EC7ddB11D25e25b3c21eeBf11f15eB325d')
   t.is(decodedTuple[1], '0')
   t.is(decodedTuple[2], TUPLE_CALLDATA)
+})
+
+// Tests for encoding and decoding complex structures
+// struct Example {
+//   uint256 index;
+//   uint128 counter;
+//   address creator;
+//   uint32[2] list;
+// }
+
+const exampleType = 'tuple(uint256 index, uint128 counter, address creator, uint32[2] list)'
+
+const exampleStruct1 = {
+  index: BigNumber.from('1'),
+  counter: BigNumber.from('100'),
+  creator: '0x1234567890123456789012345678901234567890',
+  list: [11, 12],
+}
+const exampleStruct2 = {
+  index: BigNumber.from('3'),
+  counter: BigNumber.from('300'),
+  creator: '0x3456789012345678901234567890123456789012',
+  list: [31, 32],
+}
+const exampleStruct3 = {
+  index: BigNumber.from('5'),
+  counter: BigNumber.from('500'),
+  creator: '0x5678901234567890123456789012345678901234',
+  list: [51, 52],
+}
+
+// dynamicArrayOfMatrix2Struct(Example[][2] memory arr)
+test('Decode dynamicArrayOfMatrix2Struct', async (t) => {
+  const decoder = new EVMScriptDecoder(
+    new abiProviders.Local({
+      [DG_ADDRESS]: ComplexStructures_abi,
+    })
+  )
+
+  const encodedEVMScript = await decoder.encodeEVMScript({
+    calls: [
+      {
+        address: DG_ADDRESS,
+        methodName: 'dynamicArrayOfMatrix2Struct',
+        encodedCallData: defaultAbiCoder.encode(
+          [`${exampleType}[][2]`],
+          [[[exampleStruct1, exampleStruct2], [exampleStruct3]]]
+        ),
+      },
+    ],
+  })
+
+  const decoded = await decoder.decodeEVMScript(encodedEVMScript)
+  const decodedStruct1 = decoded.calls[0].decodedCallData?.[0][0][0]
+  const decodedStruct2 = decoded.calls[0].decodedCallData?.[0][0][1]
+  const decodedStruct3 = decoded.calls[0].decodedCallData?.[0][1][0]
+
+  t.is(decodedStruct1[0].toString(), exampleStruct1.index.toString())
+  t.is(decodedStruct1[1].toString(), exampleStruct1.counter.toString())
+  t.is(decodedStruct1[2], exampleStruct1.creator)
+  t.deepEqual(decodedStruct1[3], exampleStruct1.list)
+
+  t.is(decodedStruct2[0].toString(), exampleStruct2.index.toString())
+  t.is(decodedStruct2[1].toString(), exampleStruct2.counter.toString())
+  t.is(decodedStruct2[2], exampleStruct2.creator)
+  t.deepEqual(decodedStruct2[3], exampleStruct2.list)
+
+  t.is(decodedStruct3[0].toString(), exampleStruct3.index.toString())
+  t.is(decodedStruct3[1].toString(), exampleStruct3.counter.toString())
+  t.is(decodedStruct3[2], exampleStruct3.creator)
+  t.deepEqual(decodedStruct3[3], exampleStruct3.list)
+})
+
+// dynamicArrayOfStructs(Example[] memory arr)
+test('Decode dynamicArrayOfStructs', async (t) => {
+  const decoder = new EVMScriptDecoder(
+    new abiProviders.Local({
+      [DG_ADDRESS]: ComplexStructures_abi,
+    })
+  )
+
+  const encodedEVMScript = await decoder.encodeEVMScript({
+    calls: [
+      {
+        address: DG_ADDRESS,
+        methodName: 'dynamicArrayOfStructs',
+        encodedCallData: defaultAbiCoder.encode(
+          [`${exampleType}[]`],
+          [[exampleStruct1, exampleStruct2, exampleStruct3]]
+        ),
+      },
+    ],
+  })
+
+  const decoded = await decoder.decodeEVMScript(encodedEVMScript)
+  const decodedStruct1 = decoded.calls[0].decodedCallData?.[0][0]
+  const decodedStruct2 = decoded.calls[0].decodedCallData?.[0][1]
+  const decodedStruct3 = decoded.calls[0].decodedCallData?.[0][2]
+
+  t.is(decodedStruct1[0].toString(), exampleStruct1.index.toString())
+  t.is(decodedStruct1[1].toString(), exampleStruct1.counter.toString())
+  t.is(decodedStruct1[2], exampleStruct1.creator)
+  t.deepEqual(decodedStruct1[3], exampleStruct1.list)
+
+  t.is(decodedStruct2[0].toString(), exampleStruct2.index.toString())
+  t.is(decodedStruct2[1].toString(), exampleStruct2.counter.toString())
+  t.is(decodedStruct2[2], exampleStruct2.creator)
+  t.deepEqual(decodedStruct2[3], exampleStruct2.list)
+
+  t.is(decodedStruct3[0].toString(), exampleStruct3.index.toString())
+  t.is(decodedStruct3[1].toString(), exampleStruct3.counter.toString())
+  t.is(decodedStruct3[2], exampleStruct3.creator)
+  t.deepEqual(decodedStruct3[3], exampleStruct3.list)
+})
+
+// dynamicMatrixOfStruct(Example[][] memory arr)
+test('Decode dynamicMatrixOfStruct', async (t) => {
+  const decoder = new EVMScriptDecoder(
+    new abiProviders.Local({
+      [DG_ADDRESS]: ComplexStructures_abi,
+    })
+  )
+
+  const encodedEVMScript = await decoder.encodeEVMScript({
+    calls: [
+      {
+        address: DG_ADDRESS,
+        methodName: 'dynamicMatrixOfStruct',
+        encodedCallData: defaultAbiCoder.encode(
+          [`${exampleType}[][]`],
+          [[[exampleStruct1, exampleStruct2], [exampleStruct3], [exampleStruct1, exampleStruct3]]]
+        ),
+      },
+    ],
+  })
+
+  const decoded = await decoder.decodeEVMScript(encodedEVMScript)
+
+  const decodedStruct1 = decoded.calls[0].decodedCallData?.[0][0][0]
+  const decodedStruct2 = decoded.calls[0].decodedCallData?.[0][0][1]
+
+  const decodedStruct3 = decoded.calls[0].decodedCallData?.[0][1][0]
+
+  const decodedStruct4 = decoded.calls[0].decodedCallData?.[0][2][0]
+  const decodedStruct5 = decoded.calls[0].decodedCallData?.[0][2][1]
+
+  t.is(decodedStruct1[0].toString(), exampleStruct1.index.toString())
+  t.is(decodedStruct1[1].toString(), exampleStruct1.counter.toString())
+  t.is(decodedStruct1[2], exampleStruct1.creator)
+  t.deepEqual(decodedStruct1[3], exampleStruct1.list)
+
+  t.is(decodedStruct2[0].toString(), exampleStruct2.index.toString())
+  t.is(decodedStruct2[1].toString(), exampleStruct2.counter.toString())
+  t.is(decodedStruct2[2], exampleStruct2.creator)
+  t.deepEqual(decodedStruct2[3], exampleStruct2.list)
+
+  t.is(decodedStruct3[0].toString(), exampleStruct3.index.toString())
+  t.is(decodedStruct3[1].toString(), exampleStruct3.counter.toString())
+  t.is(decodedStruct3[2], exampleStruct3.creator)
+  t.deepEqual(decodedStruct3[3], exampleStruct3.list)
+
+  t.is(decodedStruct4[0].toString(), exampleStruct1.index.toString())
+  t.is(decodedStruct4[1].toString(), exampleStruct1.counter.toString())
+  t.is(decodedStruct4[2], exampleStruct1.creator)
+  t.deepEqual(decodedStruct4[3], exampleStruct1.list)
+
+  t.is(decodedStruct5[0].toString(), exampleStruct3.index.toString())
+  t.is(decodedStruct5[1].toString(), exampleStruct3.counter.toString())
+  t.is(decodedStruct5[2], exampleStruct3.creator)
+  t.deepEqual(decodedStruct5[3], exampleStruct3.list)
+})
+
+// matrix2OfStruct(Example[2][2] memory arr)
+test('Decode matrix2OfStruct', async (t) => {
+  const decoder = new EVMScriptDecoder(
+    new abiProviders.Local({
+      [DG_ADDRESS]: ComplexStructures_abi,
+    })
+  )
+
+  const encodedEVMScript = await decoder.encodeEVMScript({
+    calls: [
+      {
+        address: DG_ADDRESS,
+        methodName: 'matrix2OfStruct',
+        encodedCallData: defaultAbiCoder.encode(
+          [`${exampleType}[2][2]`],
+          [
+            [
+              [exampleStruct1, exampleStruct2],
+              [exampleStruct3, exampleStruct1],
+            ],
+          ]
+        ),
+      },
+    ],
+  })
+
+  const decoded = await decoder.decodeEVMScript(encodedEVMScript)
+
+  const decodedStruct1 = decoded.calls[0].decodedCallData?.[0][0][0]
+  const decodedStruct2 = decoded.calls[0].decodedCallData?.[0][0][1]
+
+  const decodedStruct3 = decoded.calls[0].decodedCallData?.[0][1][0]
+  const decodedStruct4 = decoded.calls[0].decodedCallData?.[0][1][1]
+
+  t.is(decodedStruct1[0].toString(), exampleStruct1.index.toString())
+  t.is(decodedStruct1[1].toString(), exampleStruct1.counter.toString())
+  t.is(decodedStruct1[2], exampleStruct1.creator)
+  t.deepEqual(decodedStruct1[3], exampleStruct1.list)
+
+  t.is(decodedStruct2[0].toString(), exampleStruct2.index.toString())
+  t.is(decodedStruct2[1].toString(), exampleStruct2.counter.toString())
+  t.is(decodedStruct2[2], exampleStruct2.creator)
+  t.deepEqual(decodedStruct2[3], exampleStruct2.list)
+
+  t.is(decodedStruct3[0].toString(), exampleStruct3.index.toString())
+  t.is(decodedStruct3[1].toString(), exampleStruct3.counter.toString())
+  t.is(decodedStruct3[2], exampleStruct3.creator)
+  t.deepEqual(decodedStruct3[3], exampleStruct3.list)
+
+  t.is(decodedStruct4[0].toString(), exampleStruct1.index.toString())
+  t.is(decodedStruct4[1].toString(), exampleStruct1.counter.toString())
+  t.is(decodedStruct4[2], exampleStruct1.creator)
+  t.deepEqual(decodedStruct4[3], exampleStruct1.list)
+})
+
+// staticArrayOfStruct(Example[2] memory arr)
+test('Decode staticArrayOfStruct', async (t) => {
+  const decoder = new EVMScriptDecoder(
+    new abiProviders.Local({
+      [DG_ADDRESS]: ComplexStructures_abi,
+    })
+  )
+
+  const encodedEVMScript = await decoder.encodeEVMScript({
+    calls: [
+      {
+        address: DG_ADDRESS,
+        methodName: 'staticArrayOfStruct',
+        encodedCallData: defaultAbiCoder.encode(
+          [`${exampleType}[2]`],
+          [[exampleStruct1, exampleStruct2]]
+        ),
+      },
+    ],
+  })
+
+  const decoded = await decoder.decodeEVMScript(encodedEVMScript)
+
+  const decodedStruct1 = decoded.calls[0].decodedCallData?.[0][0]
+  const decodedStruct2 = decoded.calls[0].decodedCallData?.[0][1]
+
+  t.is(decodedStruct1[0].toString(), exampleStruct1.index.toString())
+  t.is(decodedStruct1[1].toString(), exampleStruct1.counter.toString())
+  t.is(decodedStruct1[2], exampleStruct1.creator)
+  t.deepEqual(decodedStruct1[3], exampleStruct1.list)
+
+  t.is(decodedStruct2[0].toString(), exampleStruct2.index.toString())
+  t.is(decodedStruct2[1].toString(), exampleStruct2.counter.toString())
+  t.is(decodedStruct2[2], exampleStruct2.creator)
+  t.deepEqual(decodedStruct2[3], exampleStruct2.list)
+})
+
+// staticArrayOfUint256(uint256[2] memory arr)
+test('Decode staticArrayOfUint256', async (t) => {
+  const decoder = new EVMScriptDecoder(
+    new abiProviders.Local({
+      [DG_ADDRESS]: ComplexStructures_abi,
+    })
+  )
+
+  const uint256Array = [
+    BigNumber.from('123456789012345678901234567890'),
+    BigNumber.from('987654321098765432109876543210'),
+  ]
+
+  const encodedEVMScript = await decoder.encodeEVMScript({
+    calls: [
+      {
+        address: DG_ADDRESS,
+        methodName: 'staticArrayOfUint256',
+        encodedCallData: defaultAbiCoder.encode(['uint256[2]'], [uint256Array]),
+      },
+    ],
+  })
+
+  const decoded = await decoder.decodeEVMScript(encodedEVMScript)
+
+  const decodedValue1 = decoded.calls[0].decodedCallData?.[0][0]
+  const decodedValue2 = decoded.calls[0].decodedCallData?.[0][1]
+
+  t.is(decodedValue1.toString(), uint256Array[0].toString())
+  t.is(decodedValue2.toString(), uint256Array[1].toString())
 })
