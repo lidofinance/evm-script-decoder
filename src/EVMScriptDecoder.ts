@@ -43,9 +43,15 @@ export class EVMScriptDecoder {
     return evmScriptEncoded
   }
 
-  private async formatDecodedParams(rawParams: any[], inputs: EVMScriptCall['abi']['inputs'] | undefined) {
+  private async formatDecodedParams(
+    rawParams: any[],
+    inputs: EVMScriptCall['abi']['inputs'] | undefined
+  ) {
     if (!rawParams) return rawParams
     const formatters = rawParams.map((param, i) => {
+      if (Array.isArray(param)) {
+        return this.formatDecodedParams(param, inputs?.[i]?.components)
+      }
       if (param?._isBigNumber) return param.toString()
       if (inputs && inputs[i].name === '_evmScript') return this.decodeEVMScript(param)
       return param

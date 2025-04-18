@@ -1,5 +1,5 @@
-import keccak256 from 'keccak256'
 import { ABIElement, Address } from './types'
+import { getMethodId, getMethodSignature } from './utils'
 
 export class ABICache {
   // stores ABI elements by address by methodId
@@ -17,14 +17,10 @@ export class ABICache {
     const abiByMethodIds: Record<string, ABIElement> = {}
     const onlyMethodsABI = abi.filter((a) => a.name && a.inputs)
     for (const abiElement of onlyMethodsABI) {
-      const methodId = getMethodId(abiElement)
+      const signature = getMethodSignature(abiElement)
+      const methodId = getMethodId(signature)
       abiByMethodIds[methodId] = abiElement
     }
     this.data[address] = abiByMethodIds
   }
-}
-
-function getMethodId(abiElement: ABIElement): string {
-  const signature = `${abiElement.name}(${abiElement.inputs.map((i) => i.type).join(',')})`
-  return '0x' + keccak256(signature).toString('hex').slice(0, 8)
 }
