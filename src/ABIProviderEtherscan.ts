@@ -1,5 +1,6 @@
 import { ABIProvider, ABIProviderMiddleware } from './ABIProvider'
 import { Network, Fetcher, Address } from './types'
+import { getChainId } from './utils'
 
 interface EtherscanResponse {
   message: 'OK' | 'NOTOK'
@@ -29,16 +30,14 @@ export class ABIProviderEtherscan extends ABIProvider {
 function DefaultEtherscanFetcher(config: { network: Network; apiKey: String; fetch: Fetcher }) {
   return async (address: Address) => {
     const queryParams = [
+      `chainid=${getChainId(config.network)}`,
       'module=contract',
       'action=getabi',
       `address=${address}`,
       `apikey=${config.apiKey}`,
     ]
-    const baseApiUrl =
-      config.network === 'mainnet'
-        ? 'https://api.etherscan.io/api'
-        : `https://api-${config.network}.etherscan.io/api`
-    const response = await config.fetch(`${baseApiUrl}?${queryParams.join('&')}`)
+
+    const response = await config.fetch(`https://api.etherscan.io/v2/api?${queryParams.join('&')}`)
     if (response.status !== 200) {
       throw Error(`Etherscan request failed. Status code ${response.status}`)
     }
