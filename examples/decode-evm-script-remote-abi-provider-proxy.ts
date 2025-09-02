@@ -1,28 +1,14 @@
 import fetch from 'node-fetch'
 import { EVMScriptDecoder, abiProviders } from '../src/index'
-import { ETHERSCAN_API_KEY } from './constants'
+import { ETHERSCAN_API_KEY, RPC_URL } from './constants'
 import { Contract, providers as ethersProviders } from 'ethers'
 
-const RPC_PROVIDER = 'https://rinkeby.infura.io/v3/be90129e6aee40f2af06becac2521b7a'
-const EVM_SCRIPT_EXAMPLE =
-  '0x00000001' +
-  '0006DE2639a6FC48349aA0B116F499621168a112' +
-  '00000124' +
-  '9a4ee59c' +
-  '0000000000000000000000000000000000000000000000000000000000000017' +
-  '0000000000000000000000000000000000000000000000000000000000000040' +
-  '00000000000000000000000000000000000000000000000000000000000000c0' +
-  '0000000000000000000000000000000000000000000000000000000000000040' +
-  '0000000000000000000000000000000000000000000000000000000000000080' +
-  '0000000000000000000000000000000000000000000000000000000000000001' +
-  '0000000000000000000000000000000000000000000000000000000000000000' +
-  '0000000000000000000000000000000000000000000000000000000000000001' +
-  '0000000000000000000000000000000000000000000000000de0b6b3a7640000'
+const EVM_SCRIPT_EXAMPLE = `0x0000000155032650b14df07b85bF18A3a3eC8E0Af2e028d50000002491dcd6b20000000000000000000000000000000000000000000000000000000000000001`
 
 async function main() {
   const proxyOffDecoder = new EVMScriptDecoder(
     new abiProviders.Etherscan({
-      network: 'rinkeby',
+      network: 'mainnet',
       apiKey: ETHERSCAN_API_KEY,
       fetch,
     })
@@ -39,7 +25,7 @@ async function main() {
 
   const proxyOnDecoder = new EVMScriptDecoder(
     new abiProviders.Etherscan({
-      network: 'rinkeby',
+      network: 'mainnet',
       apiKey: ETHERSCAN_API_KEY,
       fetch,
       middlewares: [
@@ -52,7 +38,7 @@ async function main() {
             const contract = new Contract(
               proxyAddress,
               [abiElement],
-              new ethersProviders.JsonRpcProvider(RPC_PROVIDER)
+              new ethersProviders.JsonRpcProvider(RPC_URL)
             )
             return contract[abiElement.name]()
           },

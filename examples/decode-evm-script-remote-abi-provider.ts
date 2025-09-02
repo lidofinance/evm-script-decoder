@@ -5,13 +5,13 @@ import {
   createEVMScriptExample,
   NOT_CONTRACT_ADDRESS,
   NOT_VERIFIED_CONTRACT,
-  VERIFIED_CONTRACT,
+  VERIFIED_NON_PROXY_CONTRACT,
 } from './constants'
 
 async function main() {
   const decoder = new EVMScriptDecoder(
     new abiProviders.Etherscan({
-      network: 'rinkeby',
+      network: 'mainnet',
       apiKey: ETHERSCAN_API_KEY,
       fetch,
     })
@@ -36,7 +36,7 @@ async function main() {
   console.dir(notVerifiedContractDecodedEVMScript, { depth: 5 })
 
   const knownAddressDecodedEVMScript = await decoder.decodeEVMScript(
-    createEVMScriptExample(VERIFIED_CONTRACT)
+    createEVMScriptExample(VERIFIED_NON_PROXY_CONTRACT)
   )
   console.log(
     'Example of EVMScript decode result via Etherscan API ' +
