@@ -26,7 +26,7 @@ test('getABI() creates correct url', async (t) => {
   })
   const provider = new abiProviders.Etherscan({
     apiKey: 'MOCK_API_KEY',
-    network: 'hoodi',
+    chainId: 560048,
     fetch,
   })
   await provider.getABI(TEST_ADDRESS)

@@ -66,7 +66,7 @@ const ETHERSCAN_API_KEY = '...'
 // it directly in constructor as parameter of config.
 const etherscanEVMScriptDecoder = new EVMScriptDecoder(
   new providers.Etherscan({
-    network: 'mainnet',
+    chainId: 1,
     apiKey: ETHERSCAN_API_KEY,
   })
 )
@@ -143,7 +143,7 @@ const evmScriptDecoder = new EVMScriptDecoder(
   new providers.Local({
     '0x7899EF901Ed9B331bAf7759c15D2e8728e8c2a2C': [],
   }),
-  new providers.Etherscan({ network: 'mainnet', apiKey: ETHERSCAN_API_KEY })
+  new providers.Etherscan({ chainId: 1, apiKey: ETHERSCAN_API_KEY })
 )
 ```
 
@@ -159,11 +159,11 @@ Might be used for the convenient creation of EVMScripts.
 import { defaultAbiCoder } from '@ethersproject/abi'
 import { EVMScriptDecoder, providers } from 'evm-script-decoder'
 
-const evmScriptDecoder = new EVMScriptDecoder
+const evmScriptDecoder = new EVMScriptDecoder(
   new providers.Local({
     '0x7899EF901Ed9B331bAf7759c15D2e8728e8c2a2C': [],
   }),
-  new providers.Etherscan({ network: 'mainnet', apiKey: ETHERSCAN_API_KEY }),
+  new providers.Etherscan({ chainId: 1, apiKey: ETHERSCAN_API_KEY })
 )
 
 const evmScriptManyCalls = await decoder.encodeEVMScript({
@@ -229,7 +229,7 @@ import { EVMScriptDecoder, abiProviders } from 'evm-script-decoder'
 
 const proxyOnDecoder = new EVMScriptDecoder(
   new abiProviders.Etherscan({
-    network: 'rinkeby',
+    chainId: 1,
     apiKey: ETHERSCAN_API_KEY,
     fetch,
     middlewares: [

@@ -8,7 +8,7 @@ const EVM_SCRIPT_EXAMPLE = `0x0000000155032650b14df07b85bF18A3a3eC8E0Af2e028d500
 async function main() {
   const proxyOffDecoder = new EVMScriptDecoder(
     new abiProviders.Etherscan({
-      network: 'mainnet',
+      chainId: 1,
       apiKey: ETHERSCAN_API_KEY,
       fetch,
     })
@@ -25,7 +25,7 @@ async function main() {
 
   const proxyOnDecoder = new EVMScriptDecoder(
     new abiProviders.Etherscan({
-      network: 'mainnet',
+      chainId: 1,
       apiKey: ETHERSCAN_API_KEY,
       fetch,
       middlewares: [

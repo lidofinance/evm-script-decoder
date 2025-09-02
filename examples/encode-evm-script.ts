@@ -11,7 +11,7 @@ import {
 async function main() {
   const decoder = new EVMScriptDecoder(
     new abiProviders.Etherscan({
-      network: 'mainnet',
+      chainId: 1,
       apiKey: ETHERSCAN_API_KEY,
       fetch,
     })
