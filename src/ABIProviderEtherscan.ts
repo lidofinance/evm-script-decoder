@@ -1,6 +1,5 @@
 import { ABIProvider, ABIProviderMiddleware } from './ABIProvider'
 import { Network, Fetcher, Address } from './types'
-import { getChainId } from './utils'
 
 interface EtherscanResponse {
   message: 'OK' | 'NOTOK'
@@ -9,7 +8,9 @@ interface EtherscanResponse {
 
 interface ABIProviderEtherscanConfig {
   apiKey: string
+  /** @deprecated Use `chainId` instead. */
   network?: Network
+  chainId?: number
   fetch?: Fetcher
   middlewares?: ABIProviderMiddleware[]
 }
@@ -20,17 +21,17 @@ export class ABIProviderEtherscan extends ABIProvider {
       fetcher: DefaultEtherscanFetcher({
         fetch: config.fetch || globalThis.fetch.bind(globalThis),
         apiKey: config.apiKey,
-        network: config.network || 'mainnet',
+        chainId: config.chainId,
       }),
       middlewares: config.middlewares,
     })
   }
 }
 
-function DefaultEtherscanFetcher(config: { network: Network; apiKey: String; fetch: Fetcher }) {
+function DefaultEtherscanFetcher(config: { apiKey: string; chainId?: number; fetch: Fetcher }) {
   return async (address: Address) => {
     const queryParams = [
-      `chainid=${getChainId(config.network)}`,
+      `chainid=${config.chainId ?? 1}`,
       'module=contract',
       'action=getabi',
       `address=${address}`,
