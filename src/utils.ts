@@ -1,5 +1,5 @@
 import keccak256 from 'keccak256'
-import { ABIElement } from './types'
+import { ABIElement, Network } from './types'
 
 function getComplexType(input: ABIElement['inputs'][number]): string {
   const isArray = input.type.includes('[')
@@ -26,4 +26,17 @@ export function getMethodSignature(abiElement: ABIElement): string {
 
 export function getMethodId(signature: string): string {
   return '0x' + keccak256(signature).toString('hex').slice(0, 8)
+}
+
+export function getChainId(network: Network): string {
+  switch (network) {
+    case 'mainnet':
+      return '1'
+    case 'sepolia':
+      return '11155111'
+    case 'hoodi':
+      return '560048'
+    default:
+      throw new Error(`Unsupported network: ${network}`)
+  }
 }

@@ -1,4 +1,4 @@
-export type Network = 'mainnet' | 'ropsten' | 'rinkeby' | 'kovan' | 'goerli'
+export type Network = 'mainnet' | 'sepolia' | 'hoodi'
 export type Address = string
 export type EVMScriptEncoded = string
 export type ABIElement = {

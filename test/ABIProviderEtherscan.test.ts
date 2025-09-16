@@ -26,11 +26,11 @@ test('getABI() creates correct url', async (t) => {
   })
   const provider = new abiProviders.Etherscan({
     apiKey: 'MOCK_API_KEY',
-    network: 'rinkeby',
+    network: 'hoodi',
     fetch,
   })
   await provider.getABI(TEST_ADDRESS)
-  t.true(calledWith().startsWith('https://api-rinkeby.etherscan.io/api'))
+  t.true(calledWith().startsWith(`https://api.etherscan.io/v2/api?chainid=560048`))
   t.true(calledWith().includes('address=0x07804b6667d649c819dfa94af50c782c26f5abc3'))
   t.true(calledWith().includes('apikey=MOCK_API_KEY'))
 })
